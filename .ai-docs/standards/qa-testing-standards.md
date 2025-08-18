@@ -10,7 +10,7 @@
 
 ```java
 @Test
-@DisplayName("測試案例描述")
+@DisplayName("GIVEN: 條件描述 WHEN: 動作描述 THEN: 期望結果描述")
 void testMethodName() {
     // Given - 準備測試數據和前置條件
     givenMethodForSetup();
@@ -52,7 +52,7 @@ void testMethodName() {
 
 ```java
 @Test
-@DisplayName("有效的匯率轉換應該成功")
+@DisplayName("GIVEN: 有效的匯率 WHEN: 執行儲存 THEN: 資料應該成功儲存")
 void shouldConvertCurrencySuccessfully() {
     // Given - 準備測試數據
     givenValidConversionRequestAndMockService();
