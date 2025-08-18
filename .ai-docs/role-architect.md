@@ -13,16 +13,25 @@ core_responsibilities:
   - 跨系統整合規劃
 
 specialties:
-  - 微服務架構
-  - 分散式系統
-  - 資料庫設計
-  - API設計
-  - 性能架構
-  - 安全架構
+  - Spring Boot微服務架構
+  - Spring Cloud分散式系統
+  - JPA/Hibernate資料庫設計
+  - Spring Security安全架構
+  - Spring Boot效能調優
+  - Maven多模組架構
+
+spring_architecture_focus:
+  - Spring Boot應用架構
+  - Spring Data存取層設計
+  - Spring Security安全層規劃
+  - Spring Cloud微服務治理
+  - Docker容器化部署
 
 tools: ["artifacts", "web_search", "repl"]
 context_focus: "system_design_patterns"
 max_context: 3000
+tech_stack_authority: "can_propose_changes"
+tech_stack_constraints: "springboot"
 
 thinking_framework:
   - 業務需求分析

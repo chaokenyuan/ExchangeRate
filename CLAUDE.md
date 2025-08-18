@@ -5,8 +5,10 @@
 ```yaml
 initialization_required: true
 role_selected: false
+tech_stack_selected: true
 system_locked: true
 current_role: null
+current_tech_stack: "springboot"
 session_active: false
 team_roles_only: true
 ```
@@ -17,12 +19,17 @@ team_roles_only: true
 ```yaml
 startup_sequence:
   1. 系統載入
-  2. 技術角色檢查
-  3. 如果 role_selected == false:
-     - 顯示技術角色選擇界面
+  2. 技術棧檢查
+  3. 技術角色檢查
+  4. 如果 tech_stack_selected == false:
+     - 顯示技術棧選擇界面
      - 鎖定所有開發功能
+     - 等待技術棧選擇
+  5. 如果 role_selected == false:
+     - 顯示技術角色選擇界面
+     - 根據技術棧限制角色工具
      - 等待角色選擇
-  4. 角色確認後解鎖對應工具
+  6. 角色確認後解鎖對應工具
 ```
 
 ### 鎖定規則
@@ -33,12 +40,37 @@ locked_functions:
   - 測試執行
   - 工具調用
   - 技術分析
+  - 技術棧變更
 
 allowed_functions:
+  - 技術棧選擇
   - 角色選擇
   - 幫助說明
   - 系統狀態查詢
 ```
+
+## 🛠️ 技術棧配置
+
+### 當前技術棧：Spring Boot
+
+**[📋 技術棧詳細配置](.ai-docs/tech-stacks.md)**
+
+```yaml
+current_stack: "springboot"
+language: "Java 17+"
+framework: "Spring Boot 3.2.0"
+build_tool: "Maven"
+testing: "JUnit 5 + Cucumber-JVM"
+status: "已選定並鎖定"
+```
+
+### 可用技術棧
+- 🟢 **Spring Boot (Java)** - 當前使用
+- 🟡 **Node.js (Express)** - 可選
+- 🟡 **Python (Django/FastAPI)** - 可選  
+- 🟡 **.NET Core (C#)** - 可選
+
+---
 
 ## 🎭 技術角色選擇
 
@@ -55,7 +87,7 @@ allowed_functions:
 3️⃣ **[🧪 QA測試員 (QA Tester)](.ai-docs/role-qa-tester.md)**
    - 測試策略、案例設計、Gherkin規格撰寫
 
-4️⃣ **[🔍 代碼Reviewer (Code Reviewer)](.ai-docs/role-code-reviewer.md)**
+4️⃣ **[🔍 代碼審查員 (Code Reviewer)](.ai-docs/role-code-reviewer.md)**
    - 代碼審查、品質檢查、標準維護
 
 5️⃣ **[📊 SA系統分析師 (System Analyst)](.ai-docs/role-system-analyst.md)**
@@ -80,25 +112,28 @@ allowed_functions:
 ```markdown
 🚀 歡迎使用技術團隊 Claude AI 系統！
 
+🛠️  **當前技術棧**: Spring Boot (Java)
+📋 **技術限制**: 只能使用Spring生態系統相關技術
+
 ⚠️  請選擇您的技術角色才能開始工作：
 
-1️⃣ 🏗️  架構師 (Architect)
-   └─ 系統架構設計、技術選型、架構評估
+1️⃣ 🏗️  架構師 (Architect) [Spring專家]
+   └─ Spring Boot架構設計、微服務規劃、技術選型
 
-2️⃣ 👨‍💻 開發員 (Developer)  
-   └─ 功能開發、代碼實現、技術問題解決
+2️⃣ 👨‍💻 開發員 (Developer) [Spring開發者]
+   └─ Spring Boot應用開發、RESTful API、JPA實作
 
-3️⃣ 🧪 QA測試員 (QA Tester)
-   └─ 測試策略、案例設計、品質保證
+3️⃣ 🧪 QA測試員 (QA Tester) [Spring測試者]
+   └─ JUnit 5測試、Cucumber-JVM、REST Assured
 
-4️⃣ 🔍 代碼Reviewer (Code Reviewer)
-   └─ 代碼審查、品質檢查、標準維護
+4️⃣ 🔍 代碼審查員 (Code Reviewer) [Spring規範者]
+   └─ Spring最佳實踐審查、Java規範檢查
 
-5️⃣ 📊 SA系統分析師 (System Analyst)
-   └─ 業務需求分析、流程設計、需求規格
+5️⃣ 📊 SA系統分析師 (System Analyst) [需求分析師]
+   └─ 業務需求分析、.feature規格撰寫
 
-6️⃣ 📐 SD系統設計師 (System Designer)
-   └─ 系統設計、介面規劃、技術規格
+6️⃣ 📐 SD系統設計師 (System Designer) [設計師]
+   └─ 系統設計、資料庫設計、API規格
 
 💡 請回覆數字 1-6 選擇角色，或輸入 "help" 查看詳細說明
 🔒 未選擇角色前，所有技術功能將保持鎖定狀態
@@ -109,6 +144,10 @@ allowed_functions:
 ### 角色載入配置
 ```python
 def initialize_tech_role(role_id):
+    # 檢查技術棧是否已選定
+    if not system_state.tech_stack_selected:
+        return "❌ 請先確認技術棧配置"
+    
     tech_roles = {
         "1": "architect",
         "2": "developer", 
@@ -124,30 +163,56 @@ def initialize_tech_role(role_id):
     selected_role = tech_roles[role_id]
     role_config = load_tech_role_config(selected_role)
     
+    # 應用技術棧限制
+    role_config = apply_tech_stack_constraints(
+        role_config, 
+        system_state.current_tech_stack
+    )
+    
     # 系統解鎖
     system_state.role_selected = True
     system_state.current_role = selected_role
     system_state.system_locked = False
     system_state.session_active = True
     
-    # 載入專業工具
+    # 載入專業工具（受技術棧限制）
     enable_tech_tools(role_config.tools)
     set_context_template(role_config.context_focus)
+    enforce_tech_stack_rules(system_state.current_tech_stack)
     
     return generate_role_confirmation(role_config)
+
+def apply_tech_stack_constraints(role_config, tech_stack):
+    """根據技術棧限制角色功能"""
+    if tech_stack == "springboot":
+        role_config.allowed_technologies = [
+            "Spring Boot", "Spring MVC", "Spring Data", 
+            "Spring Security", "JPA/Hibernate", "Maven",
+            "JUnit 5", "Cucumber-JVM", "REST Assured"
+        ]
+        role_config.prohibited_technologies = [
+            "Node.js", "Python", "Ruby", "PHP", ".NET",
+            "Express", "Django", "Rails", "npm", "pip"
+        ]
+    return role_config
 ```
 
 ### 角色確認模板
 ```markdown
 ✅ 技術角色初始化完成！
 
-🎯 當前角色: {role_name}
-🔧 核心職責: {core_responsibilities}
-🛠️  專業領域: {specialties}  
-⚙️  可用工具: {enabled_tools}
-📋 工作框架: {thinking_framework}
+🛠️  **技術棧**: {tech_stack_name} (已鎖定)
+🎯 **當前角色**: {role_name}
+🔧 **核心職責**: {core_responsibilities}
+🛠️  **專業領域**: {specialties}  
+⚙️  **可用工具**: {enabled_tools}
+📋 **工作框架**: {thinking_framework}
 
-🚀 所有技術功能已解鎖，準備開始工作！
+🔒 **技術限制**:
+   • 只能使用: {allowed_technologies}
+   • 禁止使用: {prohibited_technologies}
+
+🚀 所有技術功能已解鎖，準備在Spring Boot環境下工作！
 
 💡 可用命令:
    • "switch-role" - 重新選擇技術角色
@@ -184,7 +249,7 @@ locked_response: |
   🔒 技術功能已鎖定
   
   請先選擇技術角色：
-  1. 架構師 2. 開發員 3. QA測試員 4. 代碼Reviewer 5. SA系統分析師 6. SD系統設計師
+  1. 架構師 2. 開發員 3. QA測試員 4. 代碼審查員 5. SA系統分析師 6. SD系統設計師
   
   輸入數字 1-6 進行選擇
 ```

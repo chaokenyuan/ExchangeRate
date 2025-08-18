@@ -15,19 +15,28 @@ core_responsibilities:
   - BDD測試場景設計
 
 specialties:
-  - 功能測試
-  - 性能測試
-  - 安全測試
-  - API測試
-  - 自動化測試框架
-  - 測試數據管理
-  - BDD/Cucumber測試
+  - Spring Boot應用測試
+  - JUnit 5單元測試
+  - Spring Boot Test整合測試
+  - REST Assured API測試
+  - Cucumber-JVM BDD測試
+  - TestContainers容器測試
+  - Spring Security測試
+  - JPA/Hibernate測試
   - Gherkin語法精通
   - .feature檔案撰寫
+
+spring_boot_testing:
+  - "@SpringBootTest"
+  - "@WebMvcTest"
+  - "@DataJpaTest" 
+  - "@TestMethodOrder"
+  - "MockMvc測試"
 
 tools: ["repl", "artifacts", "web_search"]
 context_focus: "testing_scenarios"
 max_context: 2000
+tech_stack_constraints: "springboot"
 
 testing_approach:
   - 需求分析
@@ -113,3 +122,93 @@ Feature: [功能名稱]
 4. 缺陷報告
 5. 測試覆蓋率報告
 6. 自動化測試腳本
+
+## Spring Boot 測試規範
+
+### 單元測試原則
+- ✅ **輕量測試**: 使用 `@ExtendWith(MockitoExtension.class)`
+- ✅ **避免重量測試**: 避免使用 `@SpringBootTest`（單元測試）
+- ✅ **中文描述**: `@DisplayName("類別描述")` 使用中文
+- ✅ **依賴注入**: 使用 `@InjectMocks` 和 `@Mock`
+
+### 測試方法規範
+- ✅ **命名格式**: `givenXxx_whenYyy_thenShouldZzz()`
+- ✅ **中文DisplayName**: GIVEN-WHEN-THEN 格式
+- ✅ **三段式結構**: 每個測試方法標註 GIVEN、WHEN、THEN
+- ✅ **邏輯隔離**: 禁止在測試方法中直接寫業務邏輯
+
+### 單元測試示例
+```java
+@ExtendWith(MockitoExtension.class)
+@DisplayName("匯率服務測試")
+class ExchangeRateServiceTest {
+
+    @Mock
+    private ExchangeRateRepository repository;
+    
+    @InjectMocks
+    private ExchangeRateService service;
+
+    @Test
+    @DisplayName("GIVEN 有效的匯率資料 WHEN 儲存匯率 THEN 應該成功儲存並回傳結果")
+    void givenValidExchangeRate_whenSaveExchangeRate_thenShouldSaveSuccessfully() {
+        // GIVEN
+        ExchangeRate exchangeRate = new ExchangeRate();
+        exchangeRate.setFromCurrency("USD");
+        exchangeRate.setToCurrency("TWD");
+        
+        // WHEN
+        ExchangeRate result = service.saveExchangeRate(exchangeRate);
+        
+        // THEN
+        assertThat(result).isNotNull();
+        assertThat(result.getFromCurrency()).isEqualTo("USD");
+    }
+}
+```
+
+### 整合測試規範
+- 使用 `@SpringBootTest` 進行端到端測試
+- 使用 `@ActiveProfiles("test")` 指定測試環境
+- 使用 `MockMvc` 進行API測試
+- 使用 `@Transactional` 確保測試資料隔離
+
+### 整合測試示例
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase
+@DisplayName("匯率API整合測試")
+class ExchangeRateControllerIntegrationTest {
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Autowired
+    private ExchangeRateRepository repository;
+
+    @BeforeEach
+    void setUp() {
+        repository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("GIVEN 有效匯率資料 WHEN POST新增匯率 THEN 應該回傳201狀態碼")
+    void givenValidExchangeRateData_whenPostCreateExchangeRate_thenShouldReturn201() {
+        // GIVEN
+        Map<String, Object> requestData = Map.of(
+            "from_currency", "USD",
+            "to_currency", "TWD", 
+            "rate", 32.5
+        );
+
+        // WHEN
+        ResponseEntity<ExchangeRate> response = restTemplate.postForEntity(
+            "/api/exchange-rates", requestData, ExchangeRate.class);
+
+        // THEN
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody().getFromCurrency()).isEqualTo("USD");
+    }
+}
+```

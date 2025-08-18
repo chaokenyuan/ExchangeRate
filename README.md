@@ -2,87 +2,181 @@
 
 ## 專案簡介
 
-這是一個基於 Spring Boot 的匯率查詢與轉換服務系統，提供了完整的 RESTful API 來管理和查詢各種貨幣之間的匯率資料。系統使用 H2 記憶體資料庫作為資料儲存，適合用於開發、測試環境或小型應用。
+這是一個基於 Spring Boot 的匯率查詢與轉換服務系統，採用BDD (行為驅動開發) 方法論開發。系統提供完整的 RESTful API 來管理和查詢各種貨幣之間的匯率資料，並支援即時貨幣換算功能。
 
-## 技術棧
+## 🛠️ 技術棧
 
+**核心框架**
 - **Java 17** - 程式語言
-- **Spring Boot 3.2.0** - 應用程式框架
+- **Spring Boot 3.2.0** - 主要應用程式框架
 - **Spring Data JPA** - 資料持久層
-- **H2 Database** - 記憶體資料庫
+- **Spring Boot Actuator** - 應用程式監控
+- **Maven 3.9+** - 專案構建工具
+
+**資料庫**
+- **H2 Database** - 開發/測試環境記憶體資料庫
+- **MySQL/PostgreSQL** - 生產環境資料庫選項
+
+**測試框架**
+- **JUnit 5** - 單元測試框架
+- **Mockito** - 模擬測試框架
+- **Spring Boot Test** - 整合測試
+- **Cucumber-JVM 7.15.0** - BDD測試框架
+- **REST Assured 5.3.2** - REST API測試
+- **TestContainers** - 容器化測試
+
+**開發工具**
 - **Lombok** - 減少樣板程式碼
-- **Maven** - 專案管理工具
+- **Jackson** - JSON處理
+- **Hibernate Validator** - 資料驗證
+
+## 📋 技術規範與約束
+
+本專案採用嚴格的技術棧約束，確保開發一致性：
+
+- 📋 **技術棧配置**: 詳見 [tech-stacks.md](.ai-docs/tech-stacks.md)
+- 👨‍💻 **開發規範**: 詳見 [role-developer.md](.ai-docs/role-developer.md)  
+- 🧪 **測試規範**: 詳見 [role-qa-tester.md](.ai-docs/role-qa-tester.md)
+
+
+## 🏗️ 技術團隊角色系統
+
+本專案採用角色導向的開發流程，每個角色都有特定的技術專精：
+
+### 👥 可用角色
+- 🏗️ **[架構師](/.ai-docs/role-architect.md)** - Spring Boot架構設計與微服務規劃
+- 👨‍💻 **[開發員](/.ai-docs/role-developer.md)** - Spring Boot應用開發與API實作  
+- 🧪 **[QA測試員](/.ai-docs/role-qa-tester.md)** - JUnit 5 + Cucumber-JVM測試
+- 🔍 **[代碼審查員](/.ai-docs/role-code-reviewer.md)** - Spring最佳實踐審查與規範檢查
+- 📊 **[SA系統分析師](/.ai-docs/role-system-analyst.md)** - 業務需求分析與.feature規格撰寫
+- 📐 **[SD系統設計師](/.ai-docs/role-system-designer.md)** - 系統設計與資料庫設計
+
+### 🔒 技術約束
+詳細的技術約束和工作流程請參考：
+- 📋 **[技術棧配置](/.ai-docs/tech-stacks.md)** - 鎖定Spring Boot生態系統
+- 🔄 **[公共行動模式](/.ai-docs/common-action-patterns.md)** - 三階段工作流程
+- 🎭 **[角色行動模式](/.ai-docs/role-action-patterns.md)** - 6角色專屬工作模式
 
 ## 系統架構
 
 ### 專案結構
 ```
 ExchangeRate/
-├── pom.xml                              # Maven 設定檔
+├── pom.xml                                    # Maven設定檔
+├── CLAUDE.md                                 # 技術團隊角色系統配置
+├── .ai-docs/                                 # 角色與技術棧配置
+│   ├── role-architect.md                     # 架構師角色定義
+│   ├── role-developer.md                     # 開發員角色定義
+│   ├── role-qa-tester.md                     # QA測試員角色定義
+│   ├── role-code-reviewer.md                 # 代碼審查員角色定義
+│   ├── role-system-analyst.md                # SA系統分析師角色定義
+│   ├── role-system-designer.md               # SD系統設計師角色定義
+│   ├── tech-stacks.md                        # 技術棧配置
+│   ├── common-action-patterns.md             # 公共三階段工作流程
+│   └── role-action-patterns.md               # 6角色專屬行動模式
 └── src/
-    └── main/
+    ├── main/java/com/exchangerate/           # 主要應用程式碼
+    │   ├── ExchangeRateApplication.java      # Spring Boot主程式
+    │   ├── config/DataInitializer.java       # 資料初始化
+    │   ├── controller/                       # REST API控制器層
+    │   │   ├── ExchangeRateController.java   # 匯率CRUD API
+    │   │   └── ConversionController.java     # 貨幣轉換API
+    │   ├── dto/                              # 數據傳輸對象
+    │   │   ├── ConversionRequest.java        # 轉換請求模型
+    │   │   └── ConversionResponse.java       # 轉換回應模型
+    │   ├── model/ExchangeRate.java           # JPA實體模型
+    │   ├── repository/ExchangeRateRepository.java # Spring Data JPA存取層
+    │   └── service/ExchangeRateService.java  # 業務邏輯層
+    ├── main/resources/
+    │   └── application.properties            # Spring Boot配置
+    └── test/                                 # 測試程式碼
         ├── java/com/exchangerate/
-        │   ├── ExchangeRateApplication.java     # 主程式入口
-        │   ├── config/
-        │   │   └── DataInitializer.java        # 資料初始化設定
-        │   ├── controller/
-        │   │   └── ExchangeRateController.java # REST API 控制器
-        │   ├── model/
-        │   │   └── ExchangeRate.java           # 匯率實體模型
-        │   ├── repository/
-        │   │   └── ExchangeRateRepository.java # 資料存取層
-        │   └── service/
-        │       └── ExchangeRateService.java    # 業務邏輯層
+        │   ├── CucumberTestRunner.java       # Cucumber測試執行器
+        │   ├── ExchangeRateApplicationTests.java # Spring Boot測試
+        │   ├── config/CucumberSpringConfiguration.java # Cucumber Spring配置
+        │   ├── hooks/                        # Cucumber測試掛鉤
+        │   │   ├── ApiHooks.java            # API測試掛鉤
+        │   │   └── DatabaseHooks.java       # 資料庫測試掛鉤
+        │   └── stepdefinitions/              # Cucumber步驟定義
+        │       └── ExchangeRateStepDefinitions.java # BDD測試步驟實作
         └── resources/
-            └── application.properties          # 應用程式設定
+            ├── application-test.properties   # 測試環境配置
+            └── features/                     # Gherkin測試規格
+                └── exchange-rate-api.feature # 匯率API功能測試規格
 ```
 
 ### 核心功能
 
-1. **匯率管理**
-   - 新增匯率資料
-   - 更新現有匯率
-   - 刪除匯率記錄
-   - 查詢所有匯率
+基於TDD開發的完整匯率API系統，具備以下功能：
 
-2. **匯率查詢**
-   - 根據 ID 查詢特定匯率
-   - 查詢兩種貨幣間的最新匯率
-   - 根據來源貨幣查詢
-   - 根據目標貨幣查詢
+**1. CRUD匯率管理**
+- ✅ 新增匯率資料 (POST /api/exchange-rates)
+- ✅ 查詢所有匯率 (GET /api/exchange-rates)
+- ✅ 根據ID查詢 (GET /api/exchange-rates/{id})
+- ✅ 特定匯率對查詢 (GET /api/exchange-rates/{from}/{to})
+- ✅ 更新匯率資料 (PUT /api/exchange-rates/{from}/{to})
+- ✅ 刪除匯率資料 (DELETE /api/exchange-rates/{from}/{to})
 
-3. **貨幣轉換**
-   - 即時計算貨幣轉換金額
-   - 自動使用最新匯率
-   - 精確到小數點後兩位
+**2. 智慧貨幣換算**
+- ✅ 詳細轉換API (POST /api/convert)
+- ✅ 直接匯率轉換 (USD→TWD)
+- ✅ 反向匯率計算 (TWD→USD = 1/rate)
+- ✅ 鏈式中介轉換 (EUR→USD→TWD)
+- ✅ 精確度控制 (BigDecimal 6位小數)
+
+**3. 高級查詢功能**
+- ✅ 過濾條件查詢 (?from=USD&to=TWD)
+- ✅ 分頁查詢支援 (?page=1&limit=50)
+- ✅ 分頁元數據 (total_pages, total_records, has_next)
+- ✅ 靈活回應格式 (陣列或分頁物件)
+
+**4. 資料驗證與錯誤處理**
+- ✅ Bean Validation (@Valid, @NotBlank, @DecimalMin)
+- ✅ 業務邏輯驗證 (貨幣代碼、匯率範圍)
+- ✅ 統一錯誤回應格式
+- ✅ 多語言錯誤訊息支援
+
+**5. 測試與品質保證**
+- ✅ **整合測試覆蓋** - MockMvc API測試 
+- ✅ **Spring Boot測試** - 完整應用啟動測試
+- ✅ **37個BDD場景** - .feature檔案規格定義
+- ✅ **TDD開發流程** - 測試驅動開發實踐
 
 ## API 端點說明
 
 ### 基礎路徑
-`http://localhost:8080/api/exchange-rates`
+- **匯率管理**: `http://localhost:8080/api/exchange-rates`
+- **貨幣轉換**: `http://localhost:8080/api/convert`
 
 ### 端點列表
 
 | 方法 | 路徑 | 說明 | 參數 |
 |------|------|------|------|
-| GET | `/` | 取得所有匯率資料 | - |
-| GET | `/{id}` | 根據 ID 取得匯率 | id: 匯率記錄 ID |
-| GET | `/rate` | 取得兩種貨幣間最新匯率 | from: 來源貨幣<br>to: 目標貨幣 |
-| GET | `/convert` | 轉換貨幣金額 | from: 來源貨幣<br>to: 目標貨幣<br>amount: 金額 |
-| POST | `/` | 新增匯率資料 | Request Body: ExchangeRate JSON |
-| PUT | `/{id}` | 更新匯率資料 | id: 匯率記錄 ID<br>Request Body: ExchangeRate JSON |
-| DELETE | `/{id}` | 刪除匯率資料 | id: 匯率記錄 ID |
+| GET | `/api/exchange-rates` | 取得所有匯率資料 | from, to, page, limit (可選) |
+| GET | `/api/exchange-rates/{id}` | 根據 ID 取得匯率 | id: 匯率記錄 ID |
+| GET | `/api/exchange-rates/{from}/{to}` | 取得特定匯率對 | from: 來源貨幣, to: 目標貨幣 |
+| POST | `/api/exchange-rates` | 新增匯率資料 | Request Body: ExchangeRate JSON |
+| PUT | `/api/exchange-rates/{from}/{to}` | 更新特定匯率對 | from, to: 貨幣對<br>Request Body: 更新資料 |
+| DELETE | `/api/exchange-rates/{from}/{to}` | 刪除特定匯率對 | from, to: 貨幣對 |
+| POST | `/api/convert` | 智慧貨幣轉換 | Request Body: ConversionRequest JSON |
 
 ### API 使用範例
 
-#### 1. 查詢最新匯率
+#### 1. 查詢特定匯率對
 ```bash
-GET /api/exchange-rates/rate?from=USD&to=EUR
+GET /api/exchange-rates/USD/TWD
 ```
 
-#### 2. 貨幣轉換
+#### 2. 智慧貨幣轉換
 ```bash
-GET /api/exchange-rates/convert?from=USD&to=EUR&amount=100
+POST /api/convert
+Content-Type: application/json
+
+{
+  "from_currency": "USD",
+  "to_currency": "TWD", 
+  "amount": 100
+}
 ```
 
 #### 3. 新增匯率資料
@@ -91,10 +185,25 @@ POST /api/exchange-rates
 Content-Type: application/json
 
 {
-  "fromCurrency": "USD",
-  "toCurrency": "TWD",
-  "rate": 31.25,
+  "from_currency": "USD",
+  "to_currency": "TWD",
+  "rate": 32.5,
   "source": "Central Bank"
+}
+```
+
+#### 4. 分頁查詢匯率
+```bash
+GET /api/exchange-rates?page=1&limit=10&from=USD
+```
+
+#### 5. 更新匯率
+```bash
+PUT /api/exchange-rates/USD/TWD
+Content-Type: application/json
+
+{
+  "rate": 33.0
 }
 ```
 
