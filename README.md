@@ -58,6 +58,10 @@
 - 🔄 **[公共行動模式](/.ai-docs/common-action-patterns.md)** - 三階段工作流程
 - 🎭 **[角色行動模式](/.ai-docs/role-action-patterns.md)** - 6角色專屬工作模式
 
+### 📊 .ai-docs 架構關係圖
+技術團隊文檔結構的 PlantUML 視覺化圖表：
+- 🏗️ **[架構層次圖](/.ai-docs/ai-docs-architecture.puml)** - 4層架構的層次依賴關係圖
+
 ## 系統架構
 
 ### 專案結構
@@ -74,7 +78,10 @@ ExchangeRate/
 │   ├── role-system-designer.md               # SD系統設計師角色定義
 │   ├── tech-stacks.md                        # 技術棧配置
 │   ├── common-action-patterns.md             # 公共三階段工作流程
-│   └── role-action-patterns.md               # 6角色專屬行動模式
+│   ├── role-action-patterns.md               # 6角色專屬行動模式
+│   ├── ai-docs-relationships.puml            # .ai-docs 關係圖 (基本版)
+│   ├── ai-docs-detailed-relationships.puml   # .ai-docs 詳細關係圖
+│   └── ai-docs-architecture.puml             # .ai-docs 架構層次圖
 └── src/
     ├── main/java/com/exchangerate/           # 主要應用程式碼
     │   ├── ExchangeRateApplication.java      # Spring Boot主程式

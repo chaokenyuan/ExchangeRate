@@ -1,0 +1,61 @@
+@startuml ai-docs-architecture
+!theme plain
+skinparam backgroundColor #FFFFFF
+
+title .ai-docs 技術團隊文檔架構層次
+
+package "Layer 1: 技術基礎配置" #FFF3E0 {
+    [tech-stacks.md\n技術棧配置\nSpring Boot 3.2.0鎖定] as TECH
+}
+
+package "Layer 2: 行動模式框架" #E8F5E8 {
+    [common-action-patterns.md\n三階段工作流程\n制定→執行→驗證] as COMMON
+    [role-action-patterns.md\n6角色專屬模式\n專業領域行動指南] as ROLE_PATTERNS
+    
+    COMMON --> ROLE_PATTERNS : "基礎→專業"
+}
+
+package "Layer 3: 技術角色定義" #E1F5FE {
+    package "分析設計類" {
+        [role-system-analyst.md\nSA分析師] as SA
+        [role-system-designer.md\nSD設計師] as SD
+        [role-architect.md\n架構師] as ARCHITECT
+    }
+    
+    package "開發實現類" {
+        [role-developer.md\n開發員] as DEVELOPER
+    }
+    
+    package "品質保證類" {
+        [role-qa-tester.md\nQA測試員] as QA
+        [role-code-reviewer.md\n代碼審查員] as REVIEWER
+    }
+}
+
+package "Layer 4: 專業標準規範" #F3E5F5 {
+    [standards/qa-testing-standards.md\n測試標準規範\n語意化方法包裝] as QA_STD
+    [standards/code-review-standards.md\n審查標準規範\nSpring Boot最佳實踐] as REVIEW_STD
+}
+
+' 層次依賴關係
+TECH --> COMMON : "技術約束"
+TECH --> ROLE_PATTERNS : "技術約束"
+
+COMMON --> SA : "工作流程"
+COMMON --> SD : "工作流程" 
+COMMON --> ARCHITECT : "工作流程"
+COMMON --> DEVELOPER : "工作流程"
+COMMON --> QA : "工作流程"
+COMMON --> REVIEWER : "工作流程"
+
+ROLE_PATTERNS --> SA : "專業模式"
+ROLE_PATTERNS --> SD : "專業模式"
+ROLE_PATTERNS --> ARCHITECT : "專業模式"
+ROLE_PATTERNS --> DEVELOPER : "專業模式"
+ROLE_PATTERNS --> QA : "專業模式"
+ROLE_PATTERNS --> REVIEWER : "專業模式"
+
+QA --> QA_STD : "引用標準"
+REVIEWER --> REVIEW_STD : "引用標準"
+
+@enduml
