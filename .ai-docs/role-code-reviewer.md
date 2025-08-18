@@ -111,215 +111,25 @@ prompt_template: |
 6. 開發規範合規報告
 7. 測試規範審查報告
 
-## Spring Boot 開發規範審查
+## 代碼審查規範與標準
 
-### 建構子注入審查要點
-✅ **正確模式檢查**:
-```java
-// ✅ 推薦：建構子注入 + Lombok
-@RestController
-@RequestMapping("/api/exchange-rates")
-@RequiredArgsConstructor  // 自動生成建構子
-public class ExchangeRateController {
-    private final ExchangeRateService service;  // final field + 建構子注入
-}
+📋 **完整審查規範**: [代碼審查標準規範](./standards/code-review-standards.md)
 
-// ❌ 禁止：@Autowired 字段注入
-@RestController
-public class ExchangeRateController {
-    @Autowired
-    private ExchangeRateService service;  // 應避免
-}
-```
+### 核心審查要點概覽
+- ✅ **語意化測試結構**: 強制檢查 Given-When-Then 模式實作
+- ✅ **Spring Boot最佳實踐**: 建構子注入、分層架構、異常處理
+- ✅ **測試品質標準**: 單元測試、整合測試、BDD測試規範
+- ✅ **命名規範一致性**: givenXxx, whenXxx 前綴和輔助方法封裝
 
-### 分層架構審查
-✅ **正確分層檢查**:
-- Controller 層：僅處理 HTTP 請求/回應
-- Service 層：包含業務邏輯，標註 @Transactional
-- Repository 層：僅處理資料存取
+### 快速檢查清單
+**開發規範**:
+- [ ] 建構子注入 + @RequiredArgsConstructor
+- [ ] 分層架構正確實作
+- [ ] 統一異常處理機制
 
-### 錯誤處理審查
-✅ **統一異常處理**:
-```java
-@ControllerAdvice
-public class GlobalExceptionHandler {
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Map<String, String>> handleBusinessException(BusinessException e) {
-        return ResponseEntity.badRequest()
-            .body(Map.of("error", e.getMessage()));
-    }
-}
-```
+**語意化測試檢查**:
+- [ ] Given-When-Then 結構完整
+- [ ] 語意化變數命名 (givenXxx, whenXxx)
+- [ ] 輔助方法封裝 (givenXxx(), thenXxx())
 
-### 實體設計審查
-✅ **JPA實體規範檢查**:
-```java
-@Entity
-@Table(name = "exchange_rates")
-@Data  // Lombok自動生成getter/setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ExchangeRate {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, length = 3)
-    @NotBlank(message = "來源貨幣為必填欄位")
-    @JsonProperty("from_currency")
-    private String fromCurrency;
-
-    @PrePersist
-    protected void onCreate() {
-        if (timestamp == null) {
-            timestamp = LocalDateTime.now();
-        }
-    }
-}
-```
-
-## JUnit 5 測試規範審查
-
-### 單元測試規範檢查
-✅ **必須遵循的模式**:
-```java
-@ExtendWith(MockitoExtension.class)  // ✅ 必須使用
-@DisplayName("匯率服務測試")          // ✅ 必須中文描述
-class ExchangeRateServiceTest {
-
-    @Mock
-    private ExchangeRateRepository repository;  // ✅ 依賴模擬
-    
-    @InjectMocks
-    private ExchangeRateService service;        // ✅ 注入被測對象
-
-    @Test
-    @DisplayName("GIVEN 有效的匯率資料 WHEN 儲存匯率 THEN 應該成功儲存並回傳結果")
-    void givenValidExchangeRate_whenSaveExchangeRate_thenShouldSaveSuccessfully() {
-        // ✅ 三段式結構標註
-        // GIVEN
-        ExchangeRate exchangeRate = new ExchangeRate();
-        
-        // WHEN
-        ExchangeRate result = service.saveExchangeRate(exchangeRate);
-        
-        // THEN
-        assertThat(result).isNotNull();
-    }
-}
-```
-
-### ❌ 禁止的測試模式
-```java
-// ❌ 禁止：單元測試使用 @SpringBootTest
-@SpringBootTest  // 單元測試不應使用
-class ExchangeRateServiceTest {
-}
-
-// ❌ 禁止：英文 DisplayName
-@DisplayName("Should save exchange rate successfully")  // 應使用中文
-```
-
-### 整合測試規範檢查
-✅ **正確的整合測試模式**:
-```java
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@AutoConfigureTestDatabase
-@DisplayName("匯率API整合測試")
-class ExchangeRateControllerIntegrationTest {
-
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @BeforeEach
-    void setUp() {
-        // 測試資料準備
-    }
-
-    @Test
-    @DisplayName("GIVEN 有效匯率資料 WHEN POST新增匯率 THEN 應該回傳201狀態碼")
-    void givenValidExchangeRateData_whenPostCreateExchangeRate_thenShouldReturn201() {
-        // GIVEN
-        Map<String, Object> requestData = Map.of(
-            "from_currency", "USD",
-            "to_currency", "TWD", 
-            "rate", 32.5
-        );
-
-        // WHEN
-        ResponseEntity<ExchangeRate> response = restTemplate.postForEntity(
-            "/api/exchange-rates", requestData, ExchangeRate.class);
-
-        // THEN
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    }
-}
-```
-
-## BDD測試規範審查
-
-### Gherkin語法審查
-✅ **正確的.feature檔案結構**:
-```gherkin
-Feature: 匯率換算API
-  As a 需要進行貨幣換算的使用者
-  I want 有一個匯率管理與換算的API
-  So that 我能夠管理匯率資料並進行即時貨幣換算
-
-  Background:
-    Given 系統已啟動且API服務正常運作
-
-  @create @happy-path
-  Scenario: 成功新增匯率資料
-    Given 我有管理者權限
-    When 我發送POST請求到 "/api/exchange-rates" 包含匯率資料
-    Then 回應狀態碼應該是 201
-```
-
-### Step Definitions審查
-✅ **正確的步驟定義模式**:
-```java
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@CucumberContextConfiguration
-public class CucumberSpringConfiguration {
-}
-
-@Component
-public class ExchangeRateStepDefinitions {
-    
-    @Autowired
-    private TestRestTemplate restTemplate;
-    
-    @Given("系統已啟動且API服務正常運作")
-    public void systemIsRunningAndApiIsWorking() {
-        // 系統健康檢查
-    }
-}
-```
-
-## 代碼審查清單
-
-### 開發規範檢查清單
-- [ ] 是否使用建構子注入而非 @Autowired
-- [ ] 是否正確使用 @RequiredArgsConstructor
-- [ ] Controller 是否僅處理 HTTP 層邏輯
-- [ ] Service 是否標註 @Transactional
-- [ ] 實體是否正確使用 JPA 註解
-- [ ] 是否有統一的異常處理機制
-- [ ] Maven 依賴是否符合 Spring Boot 生態系統
-
-### 測試規範檢查清單
-- [ ] 單元測試是否使用 @ExtendWith(MockitoExtension.class)
-- [ ] 是否有中文 @DisplayName 描述
-- [ ] 測試方法命名是否遵循 givenXxx_whenYyy_thenShouldZzz 格式
-- [ ] 是否有清晰的 GIVEN-WHEN-THEN 結構標註
-- [ ] 整合測試是否正確使用 @SpringBootTest
-- [ ] BDD 測試的 .feature 檔案語法是否正確
-- [ ] Step Definitions 是否正確對應 Gherkin 步驟
-
-### 品質標準檢查
-- [ ] 測試覆蓋率是否達標
-- [ ] 是否有足夠的邊界條件測試
-- [ ] 異常處理是否有對應測試
-- [ ] API 文檔是否與實現一致
+詳細的審查標準、檢查清單和範例請參考完整規範文檔。
