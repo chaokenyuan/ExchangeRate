@@ -150,7 +150,7 @@ class ExchangeRateServiceTest {
     private ExchangeRateService service;
 
     @Test
-    @DisplayName("GIVEN 有效的匯率資料 WHEN 儲存匯率 THEN 應該成功儲存並回傳結果")
+    @DisplayName("GIVEN: 有效的匯率資料 WHEN: 儲存匯率 THEN: 應該成功儲存並回傳結果")
     void givenValidExchangeRate_whenSaveExchangeRate_thenShouldSaveSuccessfully() {
         // GIVEN
         ExchangeRate exchangeRate = new ExchangeRate();
@@ -175,25 +175,17 @@ class ExchangeRateServiceTest {
 
 ### 整合測試示例
 ```java
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@AutoConfigureTestDatabase
+@ExtendWith(MockitoExtension.class)
 @DisplayName("匯率API整合測試")
 class ExchangeRateControllerIntegrationTest {
 
-    @Autowired
+    @Mock
     private TestRestTemplate restTemplate;
-
-    @Autowired
+    @Mock
     private ExchangeRateRepository repository;
-
-    @BeforeEach
-    void setUp() {
-        repository.deleteAll();
-    }
-
+    
     @Test
-    @DisplayName("GIVEN 有效匯率資料 WHEN POST新增匯率 THEN 應該回傳201狀態碼")
+    @DisplayName("GIVEN: 有效匯率資料 WHEN: POST新增匯率 THEN: 應該回傳201狀態碼")
     void givenValidExchangeRateData_whenPostCreateExchangeRate_thenShouldReturn201() {
         // GIVEN
         Map<String, Object> requestData = Map.of(
