@@ -29,6 +29,7 @@
 - **Lombok** - 減少樣板程式碼
 - **Jackson** - JSON處理
 - **Hibernate Validator** - 資料驗證
+- **SpringDoc OpenAPI 3** - API文檔生成 (Swagger)
 
 ## 📋 技術規範與約束
 
@@ -130,17 +131,22 @@ ExchangeRate/
 - ✅ 分頁元數據 (total_pages, total_records, has_next)
 - ✅ 靈活回應格式 (陣列或分頁物件)
 
-**4. 資料驗證與錯誤處理**
-- ✅ Bean Validation (@Valid, @NotBlank, @DecimalMin)
-- ✅ 業務邏輯驗證 (貨幣代碼、匯率範圍)
-- ✅ 統一錯誤回應格式
-- ✅ 多語言錯誤訊息支援
 
-**5. 測試與品質保證**
-- ✅ **整合測試覆蓋** - MockMvc API測試 
-- ✅ **Spring Boot測試** - 完整應用啟動測試
-- ✅ **37個BDD場景** - .feature檔案規格定義
-- ✅ **TDD開發流程** - 測試驅動開發實踐
+
+## 📖 API 文檔
+
+本專案提供完整的 Swagger/OpenAPI 3.0 文檔，支援線上測試：
+
+### 文檔入口
+- 🌐 **[Swagger UI](http://localhost:8080/swagger-ui/index.html)** - 互動式 API 文檔界面
+- 📄 **[OpenAPI JSON](http://localhost:8080/v3/api-docs)** - 標準 OpenAPI 3.0 規格文件
+
+### 文檔功能特色
+- ✅ **中文界面** - 完整繁體中文說明
+- ✅ **即時測試** - 直接在文檔中測試 API
+- ✅ **範例資料** - 詳細的請求/回應範例
+- ✅ **錯誤場景** - 完整的錯誤處理說明
+- ✅ **資料模型** - 自動生成的 Schema 定義
 
 ## API 端點說明
 
@@ -264,6 +270,8 @@ java -jar target/exchange-rate-1.0.0-SNAPSHOT.jar
 
 4. **存取服務**
 - API 服務：`http://localhost:8080/api/exchange-rates`
+- Swagger UI：`http://localhost:8080/swagger-ui/index.html`
+- OpenAPI 文檔：`http://localhost:8080/v3/api-docs`
 - H2 Console：`http://localhost:8080/h2-console`
 
 ## 初始資料
@@ -289,40 +297,6 @@ java -jar target/exchange-rate-1.0.0-SNAPSHOT.jar
 4. **RESTful 設計**：符合 REST 架構風格的 API 設計
 5. **交易管理**：使用 Spring 的 @Transactional 確保資料一致性
 
-## 開發與測試
-
-### 日誌設定
-- 應用程式日誌級別：DEBUG
-- Spring Web 日誌級別：INFO
-- SQL 語句顯示：啟用
-- SQL 格式化：啟用
-
-### 熱部署
-專案已配置 Spring DevTools，支援開發時的熱部署功能。
-
-## 後續擴充建議
-
-1. **安全性增強**
-   - 加入 Spring Security 進行 API 認證授權
-   - 實作 JWT Token 機制
-   - 加入 API 限流功能
-
-2. **功能擴充**
-   - 整合第三方匯率 API（如 OpenExchangeRates）
-   - 加入匯率歷史記錄查詢
-   - 實作匯率趨勢分析
-   - 加入多語言支援
-
-3. **效能優化**
-   - 實作快取機制（Redis）
-   - 改用持久化資料庫（MySQL/PostgreSQL）
-   - 加入資料庫連線池配置
-
-4. **監控與維運**
-   - 整合 Spring Actuator 進行健康檢查
-   - 加入 API 文件（Swagger/OpenAPI）
-   - 實作日誌集中管理
-   - 加入效能監控指標
 
 ## 授權資訊
 
