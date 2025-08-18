@@ -86,7 +86,7 @@ class ExchangeRateServiceTest {
     private ExchangeRate savedExchangeRate;
 
     @Test
-    @DisplayName("有效的匯率資料應該成功儲存")
+    @DisplayName("GIVEN: 有效的匯率 WHEN: 執行儲存 THEN: 資料應該成功儲存")
     void shouldSaveValidExchangeRateSuccessfully() {
         // Given - 準備測試資料
         givenValidExchangeRateWithMockRepository();
@@ -184,7 +184,7 @@ class ExchangeRateControllerIntegrationTest {
     private ResponseEntity<ExchangeRate> testResponse;
 
     @Test
-    @DisplayName("有效匯率資料應該成功建立")
+    @DisplayName("GIVEN: 有效的匯率 WHEN: 執行儲存 THEN: 資料應該成功儲存")
     void shouldCreateExchangeRateSuccessfully() {
         // Given - 準備請求資料
         givenValidExchangeRateRequestData();
