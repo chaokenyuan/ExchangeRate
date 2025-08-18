@@ -129,15 +129,15 @@ Feature: [功能名稱]
 
 ### 核心測試原則概覽
 - ✅ **語意化測試結構**: 強制使用 Given-When-Then 模式
-- ✅ **語意化命名**: 變數使用 `givenXxx`, `whenYyy` 前綴  
+- ✅ **語意化命名**: 使用 `givenXxx()`, `whenYyy()` 語意化包裝測試私有方法  
 - ✅ **輕量單元測試**: 使用 `@ExtendWith(MockitoExtension.class)`
-- ✅ **中文說明**: `@DisplayName` 使用中文描述
+- ✅ **中文說明**: `@DisplayName` 使用中文描述, GIVEN: 前置條件, WHEN: 執行動作, THEN: 預期結果
 - ✅ **邏輯分組**: 使用 `@Nested` 組織測試類別
 
 ### 快速參考
 ```java
 @Test
-@DisplayName("有效資料應該通過驗證")
+@DisplayName("GIVEN: 有效/無效 資料 WHEN: 動作 THEN: 期望結果")
 void shouldPassValidationForValidData() {
     // Given - 準備測試數據
     ConversionRequest givenValidRequest = createValidRequest();
