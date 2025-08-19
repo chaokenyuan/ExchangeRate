@@ -276,22 +276,21 @@ public class ExchangeRateStepDefinitions {
 ## 代碼審查檢查清單
 
 ### 開發規範檢查清單
-- [ ] 是否使用建構子注入而非 @Autowired
+- [ ] 必須使用建構子注入，禁用 @Autowired
 - [ ] 是否正確使用 @RequiredArgsConstructor
 - [ ] Controller 是否僅處理 HTTP 層邏輯
-- [ ] Service 是否標註 @Transactional
-- [ ] 實體是否正確使用 JPA 註解
-- [ ] 是否有統一的異常處理機制
+- [ ] entity 正確使用 JPA 註解
+- [ ] 必須有統一的異常處理機制
 - [ ] Maven 依賴是否符合 Spring Boot 生態系統
 
 ### 語意化測試規範檢查清單
-- [ ] 單元測試是否使用 @ExtendWith(MockitoExtension.class)
-- [ ] 是否有中文 @DisplayName 描述
-- [ ] Given 區段是否使用 givenMethodXxx() 包裝準備邏輯
-- [ ] When 區段是否使用 whenMethodXxx() 包裝執行邏輯
-- [ ] Then 區段是否使用 thenMethodXxx() 包裝驗證邏輯
-- [ ] 是否將所有測試邏輯封裝在語意化輔助方法中
-- [ ] 整合測試是否正確使用 @SpringBootTest
+- [ ] 單元測試必須使用 @ExtendWith(MockitoExtension.class)
+- [ ] 盡可能有中文 @DisplayName 描述
+- [ ] Given 區段必須使用 givenMethodXxx() 包裝準備邏輯
+- [ ] When 區段必須使用 whenMethodXxx() 包裝執行邏輯
+- [ ] Then 區段必須使用 thenMethodXxx() 包裝驗證邏輯
+- [ ] 必須將所有測試邏輯封裝在語意化輔助方法中
+- [ ] 禁用 @SpringBootTest
 - [ ] BDD 測試的 .feature 檔案語法是否正確
 - [ ] Step Definitions 是否正確對應 Gherkin 步驟
 - [ ] Step Definitions 是否也遵循 Given-When-Then 語意化方法包裝結構
