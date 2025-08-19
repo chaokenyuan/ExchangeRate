@@ -4,6 +4,8 @@ import com.exchangerate.model.ExchangeRate;
 import com.exchangerate.repository.ExchangeRateRepository;
 import com.exchangerate.dto.ConversionRequest;
 import com.exchangerate.dto.ConversionResponse;
+import com.exchangerate.exception.ResourceNotFoundException;
+import com.exchangerate.exception.DuplicateResourceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -66,8 +68,8 @@ public class ExchangeRateService {
 
     public BigDecimal convertCurrency(String fromCurrency, String toCurrency, BigDecimal amount) {
         ExchangeRate exchangeRate = getLatestRate(fromCurrency, toCurrency)
-                .orElseThrow(() -> new RuntimeException(
-                        String.format("Exchange rate not found for %s to %s", fromCurrency, toCurrency)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("找不到匯率資料進行換算")
                 ));
         
         return amount.multiply(exchangeRate.getRate()).setScale(2, RoundingMode.HALF_UP);
@@ -79,20 +81,20 @@ public class ExchangeRateService {
         
         // Validation
         if (from.equals(to)) {
-            throw new RuntimeException("來源與目標貨幣不可相同");
+            throw new IllegalArgumentException("來源與目標貨幣不可相同");
         }
         
         if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("金額必須大於0");
+            throw new IllegalArgumentException("金額必須大於0");
         }
         
-        // Check supported currencies
-        List<String> supportedCurrencies = Arrays.asList("USD", "EUR", "GBP", "JPY", "CNY", "CHF", "TWD");
+        // Check supported currencies  
+        List<String> supportedCurrencies = Arrays.asList("USD", "EUR", "JPY", "CNY", "CHF", "TWD");
         if (!supportedCurrencies.contains(from)) {
-            throw new RuntimeException("不支援的貨幣代碼: " + from);
+            throw new IllegalArgumentException("不支援的貨幣代碼: " + from);
         }
         if (!supportedCurrencies.contains(to)) {
-            throw new RuntimeException("不支援的貨幣代碼: " + to);
+            throw new IllegalArgumentException("不支援的貨幣代碼: " + to);
         }
         
         // Try direct conversion
@@ -148,7 +150,7 @@ public class ExchangeRateService {
             }
         }
         
-        throw new RuntimeException("找不到匯率資料進行換算");
+        throw new ResourceNotFoundException("找不到匯率資料進行換算");
     }
 
     public ExchangeRate saveExchangeRate(ExchangeRate exchangeRate) {
@@ -157,17 +159,26 @@ public class ExchangeRateService {
         
         // Validation
         if (from.equals(to)) {
-            throw new RuntimeException("來源與目標貨幣不可相同");
+            throw new IllegalArgumentException("來源與目標貨幣不可相同");
         }
         
         if (exchangeRate.getRate().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("匯率必須大於0");
+            throw new IllegalArgumentException("匯率必須大於0");
+        }
+        
+        // Check supported currencies  
+        List<String> supportedCurrencies = Arrays.asList("USD", "EUR", "JPY", "CNY", "CHF", "TWD");
+        if (!supportedCurrencies.contains(from)) {
+            throw new IllegalArgumentException("不支援的貨幣代碼: " + from);
+        }
+        if (!supportedCurrencies.contains(to)) {
+            throw new IllegalArgumentException("不支援的貨幣代碼: " + to);
         }
         
         // Check for duplicates
         Optional<ExchangeRate> existing = getLatestRate(from, to);
         if (existing.isPresent()) {
-            throw new RuntimeException("匯率組合已存在");
+            throw new DuplicateResourceException("匯率組合已存在");
         }
         
         exchangeRate.setFromCurrency(from);
@@ -180,10 +191,10 @@ public class ExchangeRateService {
 
     public ExchangeRate updateExchangeRate(Long id, ExchangeRate exchangeRateDetails) {
         ExchangeRate exchangeRate = exchangeRateRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到指定的匯率資料"));
+                .orElseThrow(() -> new ResourceNotFoundException("找不到指定的匯率資料"));
         
         if (exchangeRateDetails.getRate().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("匯率必須大於0");
+            throw new IllegalArgumentException("匯率必須大於0");
         }
         
         exchangeRate.setFromCurrency(exchangeRateDetails.getFromCurrency().toUpperCase());
@@ -197,12 +208,12 @@ public class ExchangeRateService {
 
     public ExchangeRate updateExchangeRateByPair(String from, String to, Map<String, Object> updates) {
         ExchangeRate exchangeRate = getLatestRate(from, to)
-                .orElseThrow(() -> new RuntimeException("找不到指定的匯率資料"));
+                .orElseThrow(() -> new ResourceNotFoundException("找不到指定的匯率資料"));
         
         if (updates.containsKey("rate")) {
             BigDecimal newRate = new BigDecimal(updates.get("rate").toString());
             if (newRate.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new RuntimeException("匯率必須大於0");
+                throw new IllegalArgumentException("匯率必須大於0");
             }
             exchangeRate.setRate(newRate);
         }
@@ -219,7 +230,7 @@ public class ExchangeRateService {
         List<ExchangeRate> rates = exchangeRateRepository.findByFromCurrencyAndToCurrency(
             from.toUpperCase(), to.toUpperCase());
         if (rates.isEmpty()) {
-            throw new RuntimeException("找不到指定的匯率資料");
+            throw new ResourceNotFoundException("找不到指定的匯率資料");
         }
         exchangeRateRepository.deleteAll(rates);
     }

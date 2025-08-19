@@ -92,14 +92,8 @@ public class ExchangeRateController {
 
     @PostMapping("/convert")
     public ResponseEntity<?> convertCurrencyPost(@Valid @RequestBody ConversionRequest request) {
-        try {
-            ConversionResponse response = exchangeRateService.convertCurrencyDetailed(request);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
+        ConversionResponse response = exchangeRateService.convertCurrencyDetailed(request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/rate")
@@ -116,10 +110,9 @@ public class ExchangeRateController {
         try {
             ExchangeRate created = exchangeRateService.saveExchangeRate(exchangeRate);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        } catch (Exception e) {
+            // 讓GlobalExceptionHandler處理
+            throw e;
         }
     }
 
@@ -127,14 +120,8 @@ public class ExchangeRateController {
     public ResponseEntity<?> updateExchangeRate(
             @PathVariable Long id,
             @Valid @RequestBody ExchangeRate exchangeRate) {
-        try {
-            ExchangeRate updated = exchangeRateService.updateExchangeRate(id, exchangeRate);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
+        ExchangeRate updated = exchangeRateService.updateExchangeRate(id, exchangeRate);
+        return ResponseEntity.ok(updated);
     }
 
     @PutMapping("/{from}/{to}")
@@ -142,14 +129,8 @@ public class ExchangeRateController {
             @PathVariable String from,
             @PathVariable String to,
             @Valid @RequestBody Map<String, Object> updates) {
-        try {
-            ExchangeRate updated = exchangeRateService.updateExchangeRateByPair(from, to, updates);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
+        ExchangeRate updated = exchangeRateService.updateExchangeRateByPair(from, to, updates);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
