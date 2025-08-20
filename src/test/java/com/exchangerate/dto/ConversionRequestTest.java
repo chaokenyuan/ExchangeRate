@@ -8,27 +8,50 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("ConversionRequest DTO 驗證測試")
 class ConversionRequestTest {
 
-    private Validator validator;
-    private ConversionRequest validRequest;
+    // 語意化欄位命名 - Given 狀態
+    private Validator givenValidator;
+    private ConversionRequest givenValidRequest;
+    private ConversionRequest givenInvalidRequest;
+    private ConversionRequest givenRequestWithNullFromCurrency;
+    private ConversionRequest givenRequestWithEmptyFromCurrency;
+    private ConversionRequest givenRequestWithShortFromCurrency;
+    private ConversionRequest givenRequestWithLongFromCurrency;
+    private ConversionRequest givenRequestWithNullToCurrency;
+    private ConversionRequest givenRequestWithEmptyToCurrency;
+    private ConversionRequest givenRequestWithShortToCurrency;
+    private ConversionRequest givenRequestWithNullAmount;
+    private ConversionRequest givenRequestWithZeroAmount;
+    private ConversionRequest givenRequestWithNegativeAmount;
+    private ConversionRequest givenRequestWithMinimumAmount;
+
+    // 語意化欄位命名 - When 執行結果
+    private Set<ConstraintViolation<ConversionRequest>> whenValidationResult;
+
+    // 語意化欄位命名 - Then 驗證資料
+    private String thenExpectedErrorMessage;
+    private int thenExpectedViolationCount;
 
     @BeforeEach
     void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
+        givenValidator = factory.getValidator();
 
-        validRequest = new ConversionRequest();
-        validRequest.setFromCurrency("USD");
-        validRequest.setToCurrency("EUR");
-        validRequest.setAmount(new BigDecimal("100"));
+        givenValidRequest = new ConversionRequest();
+        givenValidRequest.setFromCurrency("USD");
+        givenValidRequest.setToCurrency("EUR");
+        givenValidRequest.setAmount(new BigDecimal("100"));
     }
 
     @Nested
@@ -36,32 +59,57 @@ class ConversionRequestTest {
     class ValidDataTests {
 
         @Test
-        @DisplayName("有效的轉換請求應該通過驗證")
+        @DisplayName("GIVEN: 有效的轉換請求 WHEN: 執行驗證 THEN: 應該通過驗證")
         void shouldPassValidationForValidConversionRequest() {
-            // Given
-            ConversionRequest givenValidRequest = validRequest;
+            // Given - 準備有效的請求資料
+            givenValidConversionRequest();
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = validator.validate(givenValidRequest);
+            // When - 執行驗證
+            whenValidatingConversionRequest();
 
-            // Then
-            thenShouldHaveNoViolations(whenValidating);
+            // Then - 驗證結果應該通過
+            thenShouldPassValidationWithoutErrors();
         }
 
         @Test
-        @DisplayName("最小有效金額應該通過驗證")
+        @DisplayName("GIVEN: 最小有效金額 WHEN: 執行驗證 THEN: 應該通過驗證")
         void shouldPassValidationForMinimumValidAmount() {
-            // Given
-            ConversionRequest givenRequestWithMinAmount = new ConversionRequest();
-            givenRequestWithMinAmount.setFromCurrency("USD");
-            givenRequestWithMinAmount.setToCurrency("EUR");
-            givenRequestWithMinAmount.setAmount(new BigDecimal("0.01"));
+            // Given - 準備最小有效金額請求
+            givenConversionRequestWithMinimumValidAmount();
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = validator.validate(givenRequestWithMinAmount);
+            // When - 執行驗證
+            whenValidatingMinimumAmountRequest();
 
-            // Then
-            thenShouldHaveNoViolations(whenValidating);
+            // Then - 驗證結果應該通過
+            thenShouldPassValidationWithoutErrors();
+        }
+
+        // Given 輔助方法 - 準備有效的轉換請求
+        private void givenValidConversionRequest() {
+            // 使用已在 setUp 中準備的 givenValidRequest
+        }
+
+        // Given 輔助方法 - 準備最小有效金額請求
+        private void givenConversionRequestWithMinimumValidAmount() {
+            givenRequestWithMinimumAmount = new ConversionRequest();
+            givenRequestWithMinimumAmount.setFromCurrency("USD");
+            givenRequestWithMinimumAmount.setToCurrency("EUR");
+            givenRequestWithMinimumAmount.setAmount(new BigDecimal("0.01"));
+        }
+
+        // When 輔助方法 - 執行有效請求驗證
+        private void whenValidatingConversionRequest() {
+            whenValidationResult = givenValidator.validate(givenValidRequest);
+        }
+
+        // When 輔助方法 - 執行最小金額請求驗證
+        private void whenValidatingMinimumAmountRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithMinimumAmount);
+        }
+
+        // Then 輔助方法 - 驗證應該通過且無錯誤
+        private void thenShouldPassValidationWithoutErrors() {
+            assertThat(whenValidationResult).isEmpty();
         }
     }
 
@@ -70,62 +118,105 @@ class ConversionRequestTest {
     class FromCurrencyValidationTests {
 
         @Test
-        @DisplayName("來源貨幣為空時應該驗證失敗")
+        @DisplayName("GIVEN: 來源貨幣為空 WHEN: 執行驗證 THEN: 應該驗證失敗")
         void shouldFailValidationForNullFromCurrency() {
-            // Given
-            ConversionRequest givenRequestWithNullFromCurrency = new ConversionRequest();
+            // Given - 準備空來源貨幣請求
+            givenConversionRequestWithNullFromCurrency();
+
+            // When - 執行驗證
+            whenValidatingNullFromCurrencyRequest();
+
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithMessage("來源貨幣為必填欄位");
+        }
+
+        @Test
+        @DisplayName("GIVEN: 來源貨幣為空字串 WHEN: 執行驗證 THEN: 應該驗證失敗")
+        void shouldFailValidationForEmptyFromCurrency() {
+            // Given - 準備空字串來源貨幣請求
+            givenConversionRequestWithEmptyFromCurrency();
+
+            // When - 執行驗證
+            whenValidatingEmptyFromCurrencyRequest();
+
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithMessage("來源貨幣為必填欄位");
+        }
+
+        @Test
+        @DisplayName("GIVEN: 來源貨幣長度不足 WHEN: 執行驗證 THEN: 應該驗證失敗")
+        void shouldFailValidationForShortFromCurrency() {
+            // Given - 準備長度不足的來源貨幣請求
+            givenConversionRequestWithShortFromCurrency();
+
+            // When - 執行驗證
+            whenValidatingShortFromCurrencyRequest();
+
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithMessage("貨幣代碼必須為3個字元");
+        }
+
+        @Test
+        @DisplayName("GIVEN: 來源貨幣長度過長 WHEN: 執行驗證 THEN: 應該驗證失敗")
+        void shouldFailValidationForLongFromCurrency() {
+            // Given - 準備長度過長的來源貨幣請求
+            givenConversionRequestWithLongFromCurrency();
+
+            // When - 執行驗證
+            whenValidatingLongFromCurrencyRequest();
+
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithMessage("貨幣代碼必須為3個字元");
+        }
+
+        // Given 輔助方法 - 準備空來源貨幣請求
+        private void givenConversionRequestWithNullFromCurrency() {
+            givenRequestWithNullFromCurrency = new ConversionRequest();
             givenRequestWithNullFromCurrency.setFromCurrency(null);
             givenRequestWithNullFromCurrency.setToCurrency("EUR");
             givenRequestWithNullFromCurrency.setAmount(new BigDecimal("100"));
-
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithNullFromCurrency);
-
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "來源貨幣為必填欄位");
         }
 
-        @Test
-        @DisplayName("來源貨幣為空字串時應該驗證失敗")
-        void shouldFailValidationForEmptyFromCurrency() {
-            // Given
-            ConversionRequest givenRequestWithEmptyFromCurrency = createRequestWithFromCurrency("");
-
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithEmptyFromCurrency);
-
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "來源貨幣為必填欄位");
+        // Given 輔助方法 - 準備空字串來源貨幣請求
+        private void givenConversionRequestWithEmptyFromCurrency() {
+            givenRequestWithEmptyFromCurrency = createRequestWithFromCurrency("");
         }
 
-        @Test
-        @DisplayName("來源貨幣長度不足時應該驗證失敗")
-        void shouldFailValidationForShortFromCurrency() {
-            // Given
-            ConversionRequest givenRequestWithShortFromCurrency = createRequestWithFromCurrency("US");
-
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithShortFromCurrency);
-
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "貨幣代碼必須為3個字元");
+        // Given 輔助方法 - 準備短來源貨幣請求
+        private void givenConversionRequestWithShortFromCurrency() {
+            givenRequestWithShortFromCurrency = createRequestWithFromCurrency("US");
         }
 
-        @Test
-        @DisplayName("來源貨幣長度過長時應該驗證失敗")
-        void shouldFailValidationForLongFromCurrency() {
-            // Given
-            ConversionRequest givenRequestWithLongFromCurrency = createRequestWithFromCurrency("USDD");
+        // Given 輔助方法 - 準備長來源貨幣請求
+        private void givenConversionRequestWithLongFromCurrency() {
+            givenRequestWithLongFromCurrency = createRequestWithFromCurrency("USDD");
+        }
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithLongFromCurrency);
+        // When 輔助方法 - 執行空來源貨幣驗證
+        private void whenValidatingNullFromCurrencyRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithNullFromCurrency);
+        }
 
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "貨幣代碼必須為3個字元");
+        // When 輔助方法 - 執行空字串來源貨幣驗證
+        private void whenValidatingEmptyFromCurrencyRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithEmptyFromCurrency);
+        }
+
+        // When 輔助方法 - 執行短來源貨幣驗證
+        private void whenValidatingShortFromCurrencyRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithShortFromCurrency);
+        }
+
+        // When 輔助方法 - 執行長來源貨幣驗證
+        private void whenValidatingLongFromCurrencyRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithLongFromCurrency);
+        }
+
+        // Then 輔助方法 - 驗證應該失敗並包含特定訊息
+        private void thenShouldFailValidationWithMessage(String expectedMessage) {
+            thenExpectedErrorMessage = expectedMessage;
+            assertThat(whenValidationResult).isNotEmpty();
+            assertThat(whenValidationResult).anyMatch(v -> v.getMessage().equals(thenExpectedErrorMessage));
         }
     }
 
@@ -134,45 +225,79 @@ class ConversionRequestTest {
     class ToCurrencyValidationTests {
 
         @Test
-        @DisplayName("目標貨幣為空時應該驗證失敗")
+        @DisplayName("GIVEN: 目標貨幣為空 WHEN: 執行驗證 THEN: 應該驗證失敗")
         void shouldFailValidationForNullToCurrency() {
-            // Given
-            ConversionRequest givenRequestWithNullToCurrency = createRequestWithToCurrency(null);
+            // Given - 準備空目標貨幣請求
+            givenConversionRequestWithNullToCurrency();
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithNullToCurrency);
+            // When - 執行驗證
+            whenValidatingNullToCurrencyRequest();
 
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "目標貨幣為必填欄位");
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithTargetCurrencyMessage("目標貨幣為必填欄位");
         }
 
         @Test
-        @DisplayName("目標貨幣為空字串時應該驗證失敗")
+        @DisplayName("GIVEN: 目標貨幣為空字串 WHEN: 執行驗證 THEN: 應該驗證失敗")
         void shouldFailValidationForEmptyToCurrency() {
-            // Given
-            ConversionRequest givenRequestWithEmptyToCurrency = createRequestWithToCurrency("");
+            // Given - 準備空字串目標貨幣請求
+            givenConversionRequestWithEmptyToCurrency();
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithEmptyToCurrency);
+            // When - 執行驗證
+            whenValidatingEmptyToCurrencyRequest();
 
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "目標貨幣為必填欄位");
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithTargetCurrencyMessage("目標貨幣為必填欄位");
         }
 
         @Test
-        @DisplayName("目標貨幣長度不足時應該驗證失敗")
+        @DisplayName("GIVEN: 目標貨幣長度不足 WHEN: 執行驗證 THEN: 應該驗證失敗")
         void shouldFailValidationForShortToCurrency() {
-            // Given
-            ConversionRequest givenRequestWithShortToCurrency = createRequestWithToCurrency("EU");
+            // Given - 準備長度不足的目標貨幣請求
+            givenConversionRequestWithShortToCurrency();
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithShortToCurrency);
+            // When - 執行驗證
+            whenValidatingShortToCurrencyRequest();
 
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "貨幣代碼必須為3個字元");
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithTargetCurrencyMessage("貨幣代碼必須為3個字元");
+        }
+
+        // Given 輔助方法 - 準備空目標貨幣請求
+        private void givenConversionRequestWithNullToCurrency() {
+            givenRequestWithNullToCurrency = createRequestWithToCurrency(null);
+        }
+
+        // Given 輔助方法 - 準備空字串目標貨幣請求
+        private void givenConversionRequestWithEmptyToCurrency() {
+            givenRequestWithEmptyToCurrency = createRequestWithToCurrency("");
+        }
+
+        // Given 輔助方法 - 準備短目標貨幣請求
+        private void givenConversionRequestWithShortToCurrency() {
+            givenRequestWithShortToCurrency = createRequestWithToCurrency("EU");
+        }
+
+        // When 輔助方法 - 執行空目標貨幣驗證
+        private void whenValidatingNullToCurrencyRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithNullToCurrency);
+        }
+
+        // When 輔助方法 - 執行空字串目標貨幣驗證
+        private void whenValidatingEmptyToCurrencyRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithEmptyToCurrency);
+        }
+
+        // When 輔助方法 - 執行短目標貨幣驗證
+        private void whenValidatingShortToCurrencyRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithShortToCurrency);
+        }
+
+        // Then 輔助方法 - 驗證目標貨幣錯誤
+        private void thenShouldFailValidationWithTargetCurrencyMessage(String expectedMessage) {
+            thenExpectedErrorMessage = expectedMessage;
+            assertThat(whenValidationResult).isNotEmpty();
+            assertThat(whenValidationResult).anyMatch(v -> v.getMessage().equals(thenExpectedErrorMessage));
         }
     }
 
@@ -181,45 +306,79 @@ class ConversionRequestTest {
     class AmountValidationTests {
 
         @Test
-        @DisplayName("金額為空時應該驗證失敗")
+        @DisplayName("GIVEN: 金額為空 WHEN: 執行驗證 THEN: 應該驗證失敗")
         void shouldFailValidationForNullAmount() {
-            // Given
-            ConversionRequest givenRequestWithNullAmount = createRequestWithAmount(null);
+            // Given - 準備空金額請求
+            givenConversionRequestWithNullAmount();
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithNullAmount);
+            // When - 執行驗證
+            whenValidatingNullAmountRequest();
 
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "金額為必填欄位");
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithAmountMessage("金額為必填欄位");
         }
 
         @Test
-        @DisplayName("金額為零時應該驗證失敗")
+        @DisplayName("GIVEN: 金額為零 WHEN: 執行驗證 THEN: 應該驗證失敗")
         void shouldFailValidationForZeroAmount() {
-            // Given
-            ConversionRequest givenRequestWithZeroAmount = createRequestWithAmount(BigDecimal.ZERO);
+            // Given - 準備零金額請求
+            givenConversionRequestWithZeroAmount();
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithZeroAmount);
+            // When - 執行驗證
+            whenValidatingZeroAmountRequest();
 
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "金額必須大於0");
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithAmountMessage("金額必須大於0");
         }
 
         @Test
-        @DisplayName("金額為負數時應該驗證失敗")
+        @DisplayName("GIVEN: 金額為負數 WHEN: 執行驗證 THEN: 應該驗證失敗")
         void shouldFailValidationForNegativeAmount() {
-            // Given
-            ConversionRequest givenRequestWithNegativeAmount = createRequestWithAmount(new BigDecimal("-100"));
+            // Given - 準備負數金額請求
+            givenConversionRequestWithNegativeAmount();
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenRequestWithNegativeAmount);
+            // When - 執行驗證
+            whenValidatingNegativeAmountRequest();
 
-            // Then
-            thenShouldHaveViolationWithMessage(whenValidating, "金額必須大於0");
+            // Then - 驗證應該失敗並回傳錯誤訊息
+            thenShouldFailValidationWithAmountMessage("金額必須大於0");
+        }
+
+        // Given 輔助方法 - 準備空金額請求
+        private void givenConversionRequestWithNullAmount() {
+            givenRequestWithNullAmount = createRequestWithAmount(null);
+        }
+
+        // Given 輔助方法 - 準備零金額請求
+        private void givenConversionRequestWithZeroAmount() {
+            givenRequestWithZeroAmount = createRequestWithAmount(BigDecimal.ZERO);
+        }
+
+        // Given 輔助方法 - 準備負數金額請求
+        private void givenConversionRequestWithNegativeAmount() {
+            givenRequestWithNegativeAmount = createRequestWithAmount(new BigDecimal("-100"));
+        }
+
+        // When 輔助方法 - 執行空金額驗證
+        private void whenValidatingNullAmountRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithNullAmount);
+        }
+
+        // When 輔助方法 - 執行零金額驗證
+        private void whenValidatingZeroAmountRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithZeroAmount);
+        }
+
+        // When 輔助方法 - 執行負數金額驗證
+        private void whenValidatingNegativeAmountRequest() {
+            whenValidationResult = givenValidator.validate(givenRequestWithNegativeAmount);
+        }
+
+        // Then 輔助方法 - 驗證金額錯誤
+        private void thenShouldFailValidationWithAmountMessage(String expectedMessage) {
+            thenExpectedErrorMessage = expectedMessage;
+            assertThat(whenValidationResult).isNotEmpty();
+            assertThat(whenValidationResult).anyMatch(v -> v.getMessage().equals(thenExpectedErrorMessage));
         }
     }
 
@@ -228,20 +387,35 @@ class ConversionRequestTest {
     class MultipleValidationTests {
 
         @Test
-        @DisplayName("多個欄位無效時應該返回多個錯誤")
+        @DisplayName("GIVEN: 多個欄位無效 WHEN: 執行驗證 THEN: 應該返回多個錯誤")
         void shouldReturnMultipleErrorsForMultipleInvalidFields() {
-            // Given
-            ConversionRequest givenInvalidRequest = new ConversionRequest();
+            // Given - 準備多個無效欄位的請求
+            givenConversionRequestWithMultipleInvalidFields();
+
+            // When - 執行多欄位驗證
+            whenValidatingMultipleInvalidFieldsRequest();
+
+            // Then - 驗證應該回傳多個錯誤
+            thenShouldReturnMultipleValidationErrors();
+        }
+
+        // Given 輔助方法 - 準備多個無效欄位請求
+        private void givenConversionRequestWithMultipleInvalidFields() {
+            givenInvalidRequest = new ConversionRequest();
             givenInvalidRequest.setFromCurrency("");
             givenInvalidRequest.setToCurrency(null);
             givenInvalidRequest.setAmount(BigDecimal.ZERO);
+        }
 
-            // When
-            Set<ConstraintViolation<ConversionRequest>> whenValidating = 
-                validator.validate(givenInvalidRequest);
+        // When 輔助方法 - 執行多欄位驗證
+        private void whenValidatingMultipleInvalidFieldsRequest() {
+            whenValidationResult = givenValidator.validate(givenInvalidRequest);
+        }
 
-            // Then
-            thenShouldHaveMultipleViolations(whenValidating, 3);
+        // Then 輔助方法 - 驗證多個錯誤
+        private void thenShouldReturnMultipleValidationErrors() {
+            thenExpectedViolationCount = 3;
+            assertThat(whenValidationResult).hasSizeGreaterThanOrEqualTo(thenExpectedViolationCount);
         }
     }
 
@@ -268,19 +442,5 @@ class ConversionRequestTest {
         request.setToCurrency("EUR");
         request.setAmount(amount);
         return request;
-    }
-
-    // Helper methods for Then clauses
-    private void thenShouldHaveNoViolations(Set<ConstraintViolation<ConversionRequest>> violations) {
-        assertThat(violations).isEmpty();
-    }
-
-    private void thenShouldHaveViolationWithMessage(Set<ConstraintViolation<ConversionRequest>> violations, String expectedMessage) {
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getMessage().equals(expectedMessage));
-    }
-
-    private void thenShouldHaveMultipleViolations(Set<ConstraintViolation<ConversionRequest>> violations, int expectedCount) {
-        assertThat(violations).hasSizeGreaterThanOrEqualTo(expectedCount);
     }
 }

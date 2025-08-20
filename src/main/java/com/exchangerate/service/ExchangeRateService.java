@@ -223,6 +223,9 @@ public class ExchangeRateService {
     }
 
     public void deleteExchangeRate(Long id) {
+        if (!exchangeRateRepository.existsById(id)) {
+            throw new ResourceNotFoundException(ErrorMessages.RATE_NOT_FOUND_ERROR);
+        }
         exchangeRateRepository.deleteById(id);
     }
 
