@@ -170,6 +170,9 @@
                         <exclude>**/*CucumberTest.java</exclude>
                         <exclude>**/*CucumberTestRunner.java</exclude>
                     </excludes>
+                    <systemPropertyVariables>
+                        <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
 
