@@ -3,6 +3,7 @@ package com.exchangerate.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -30,25 +31,29 @@ public class ConversionResponse {
         description = "來源貨幣代碼",
         example = "USD"
     )
-    private String from_currency;
+    @JsonProperty("from_currency")
+    private String fromCurrency;
     
     @Schema(
         description = "目標貨幣代碼",
         example = "EUR"
     )
-    private String to_currency;
+    @JsonProperty("to_currency")
+    private String toCurrency;
     
     @Schema(
         description = "來源金額",
         example = "100.00"
     )
-    private BigDecimal from_amount;
+    @JsonProperty("from_amount")
+    private BigDecimal fromAmount;
     
     @Schema(
         description = "轉換後金額",
         example = "85.000000"
     )
-    private BigDecimal to_amount;
+    @JsonProperty("to_amount")
+    private BigDecimal toAmount;
     
     @Schema(
         description = "使用的匯率",
@@ -60,12 +65,14 @@ public class ConversionResponse {
         description = "轉換執行時間",
         example = "2024-01-15T10:30:00"
     )
-    private LocalDateTime conversion_date;
+    @JsonProperty("conversion_date")
+    private LocalDateTime conversionDate;
     
     @Schema(
         description = "轉換路徑，顯示轉換經過的貨幣鏈",
         example = "USD→EUR",
         nullable = true
     )
-    private String conversion_path;
+    @JsonProperty("conversion_path")
+    private String conversionPath;
 }

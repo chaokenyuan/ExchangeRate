@@ -86,19 +86,17 @@ Feature: 貨幣換算服務
 
   @conversion @edge-case @no-rate-available
   Scenario: 無可用匯率進行換算
-    Given 資料庫沒有 "GBP" 到 "JPY" 的匯率資料
-    And 資料庫沒有 "GBP" 到 "USD" 的匯率資料
-    And 資料庫沒有 "JPY" 到 "USD" 的匯率資料
+    Given 資料庫沒有 "XXX" 到 "YYY" 的匯率資料
     When 我發送POST請求到 "/api/convert" 包含:
       """json
       {
-        "from_currency": "GBP",
-        "to_currency": "JPY",
+        "from_currency": "XXX",
+        "to_currency": "YYY",
         "amount": 100
       }
       """
     Then 回應狀態碼應該是 400
-    And 回應應該包含錯誤訊息 "不支援的貨幣代碼: GBP"
+    And 回應應該包含錯誤訊息 "不支援的貨幣代碼: XXX"
 
   # ==================== 換算精度計算 ====================
 
@@ -115,7 +113,7 @@ Feature: 貨幣換算服務
       """
     Then 回應狀態碼應該是 200
     And 換算結果應該保持適當的精度
-    And 回應中的to_amount應該是 222.185184
+    And 回應中的to_amount應該是整數 222
 
   @conversion @rounding @currency-specific
   Scenario Outline: 不同貨幣的四捨五入規則

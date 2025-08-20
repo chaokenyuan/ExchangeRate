@@ -3,6 +3,7 @@ package com.exchangerate.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 
@@ -30,7 +31,8 @@ public class ConversionRequest {
     )
     @NotBlank(message = "來源貨幣為必填欄位")
     @Size(min = 3, max = 3, message = "貨幣代碼必須為3個字元")
-    private String from_currency;
+    @JsonProperty("from_currency")
+    private String fromCurrency;
     
     @Schema(
         description = "目標貨幣代碼（ISO 4217格式）",
@@ -42,7 +44,8 @@ public class ConversionRequest {
     )
     @NotBlank(message = "目標貨幣為必填欄位")
     @Size(min = 3, max = 3, message = "貨幣代碼必須為3個字元")
-    private String to_currency;
+    @JsonProperty("to_currency")
+    private String toCurrency;
     
     @Schema(
         description = "要轉換的金額，必須大於0",

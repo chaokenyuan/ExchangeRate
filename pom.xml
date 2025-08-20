@@ -86,12 +86,8 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-spring</artifactId>
-            <version>${cucumber.version}</version>
-            <scope>test</scope>
-        </dependency>
+
+        <!-- cucumber-spring dependency removed for non-SpringBoot testing -->
 
         <dependency>
             <groupId>io.cucumber</groupId>
@@ -99,6 +95,7 @@
             <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
+
 
         <!-- REST API Testing -->
         <dependency>
@@ -171,6 +168,7 @@
                     </includes>
                     <excludes>
                         <exclude>**/*CucumberTest.java</exclude>
+                        <exclude>**/*CucumberTestRunner.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

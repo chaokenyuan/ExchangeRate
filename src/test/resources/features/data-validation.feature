@@ -82,7 +82,7 @@ Feature: 資料驗證與業務規則
 
     Examples: 找不到匯率
       | from | to  | amount | status_code | error_message           |
-      | EUR  | TWD | 100    | 400        | 不支援的貨幣代碼: EUR     |
+      | EUR  | TWD | 100    | 400        | 找不到可用的匯率          |
 
   # ==================== 貨幣代碼標準化 ====================
 

@@ -91,7 +91,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("來源貨幣為必填欄位");
+                    .isEqualTo("Source currency is required");
         }
 
         @Test
@@ -106,7 +106,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).isNotEmpty();
             assertThat(violations).anyMatch(v -> 
-                    v.getMessage().equals("來源貨幣為必填欄位"));
+                    v.getMessage().equals("Source currency is required"));
         }
 
         @Test
@@ -121,7 +121,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).isNotEmpty();
             assertThat(violations).anyMatch(v -> 
-                    v.getMessage().equals("來源貨幣為必填欄位"));
+                    v.getMessage().equals("Source currency is required"));
         }
 
         @Test
@@ -136,7 +136,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("貨幣代碼必須為3個字元");
+                    .isEqualTo("Currency code must be exactly 3 characters");
         }
 
         @Test
@@ -151,7 +151,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("貨幣代碼必須為3個字元");
+                    .isEqualTo("Currency code must be exactly 3 characters");
         }
     }
 
@@ -171,7 +171,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("目標貨幣為必填欄位");
+                    .isEqualTo("Target currency is required");
         }
 
         @Test
@@ -186,7 +186,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).isNotEmpty();
             assertThat(violations).anyMatch(v -> 
-                    v.getMessage().equals("目標貨幣為必填欄位"));
+                    v.getMessage().equals("Target currency is required"));
         }
 
         @Test
@@ -201,7 +201,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("貨幣代碼必須為3個字元");
+                    .isEqualTo("Currency code must be exactly 3 characters");
         }
 
         @Test
@@ -216,7 +216,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("貨幣代碼必須為3個字元");
+                    .isEqualTo("Currency code must be exactly 3 characters");
         }
     }
 
@@ -236,7 +236,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("匯率為必填欄位");
+                    .isEqualTo("Exchange rate is required");
         }
 
         @Test
@@ -251,7 +251,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("匯率必須大於0");
+                    .isEqualTo("Exchange rate must be greater than 0");
         }
 
         @Test
@@ -266,7 +266,7 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("匯率必須大於0");
+                    .isEqualTo("Exchange rate must be greater than 0");
         }
     }
 
@@ -289,11 +289,11 @@ class ExchangeRateTest {
             // Then
             assertThat(violations).hasSizeGreaterThanOrEqualTo(3);
             assertThat(violations).anyMatch(v -> 
-                    v.getMessage().contains("來源貨幣"));
+                    v.getMessage().contains("Source currency"));
             assertThat(violations).anyMatch(v -> 
-                    v.getMessage().contains("目標貨幣"));
+                    v.getMessage().contains("Target currency"));
             assertThat(violations).anyMatch(v -> 
-                    v.getMessage().contains("匯率"));
+                    v.getMessage().contains("Exchange rate"));
         }
     }
 

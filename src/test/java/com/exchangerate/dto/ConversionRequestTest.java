@@ -26,8 +26,8 @@ class ConversionRequestTest {
         validator = factory.getValidator();
 
         validRequest = new ConversionRequest();
-        validRequest.setFrom_currency("USD");
-        validRequest.setTo_currency("EUR");
+        validRequest.setFromCurrency("USD");
+        validRequest.setToCurrency("EUR");
         validRequest.setAmount(new BigDecimal("100"));
     }
 
@@ -53,8 +53,8 @@ class ConversionRequestTest {
         void shouldPassValidationForMinimumValidAmount() {
             // Given
             ConversionRequest givenRequestWithMinAmount = new ConversionRequest();
-            givenRequestWithMinAmount.setFrom_currency("USD");
-            givenRequestWithMinAmount.setTo_currency("EUR");
+            givenRequestWithMinAmount.setFromCurrency("USD");
+            givenRequestWithMinAmount.setToCurrency("EUR");
             givenRequestWithMinAmount.setAmount(new BigDecimal("0.01"));
 
             // When
@@ -74,8 +74,8 @@ class ConversionRequestTest {
         void shouldFailValidationForNullFromCurrency() {
             // Given
             ConversionRequest givenRequestWithNullFromCurrency = new ConversionRequest();
-            givenRequestWithNullFromCurrency.setFrom_currency(null);
-            givenRequestWithNullFromCurrency.setTo_currency("EUR");
+            givenRequestWithNullFromCurrency.setFromCurrency(null);
+            givenRequestWithNullFromCurrency.setToCurrency("EUR");
             givenRequestWithNullFromCurrency.setAmount(new BigDecimal("100"));
 
             // When
@@ -232,8 +232,8 @@ class ConversionRequestTest {
         void shouldReturnMultipleErrorsForMultipleInvalidFields() {
             // Given
             ConversionRequest givenInvalidRequest = new ConversionRequest();
-            givenInvalidRequest.setFrom_currency("");
-            givenInvalidRequest.setTo_currency(null);
+            givenInvalidRequest.setFromCurrency("");
+            givenInvalidRequest.setToCurrency(null);
             givenInvalidRequest.setAmount(BigDecimal.ZERO);
 
             // When
@@ -248,24 +248,24 @@ class ConversionRequestTest {
     // Helper methods for Given clauses
     private ConversionRequest createRequestWithFromCurrency(String fromCurrency) {
         ConversionRequest request = new ConversionRequest();
-        request.setFrom_currency(fromCurrency);
-        request.setTo_currency("EUR");
+        request.setFromCurrency(fromCurrency);
+        request.setToCurrency("EUR");
         request.setAmount(new BigDecimal("100"));
         return request;
     }
 
     private ConversionRequest createRequestWithToCurrency(String toCurrency) {
         ConversionRequest request = new ConversionRequest();
-        request.setFrom_currency("USD");
-        request.setTo_currency(toCurrency);
+        request.setFromCurrency("USD");
+        request.setToCurrency(toCurrency);
         request.setAmount(new BigDecimal("100"));
         return request;
     }
 
     private ConversionRequest createRequestWithAmount(BigDecimal amount) {
         ConversionRequest request = new ConversionRequest();
-        request.setFrom_currency("USD");
-        request.setTo_currency("EUR");
+        request.setFromCurrency("USD");
+        request.setToCurrency("EUR");
         request.setAmount(amount);
         return request;
     }

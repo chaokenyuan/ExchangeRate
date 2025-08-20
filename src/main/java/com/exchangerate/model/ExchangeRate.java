@@ -22,20 +22,20 @@ public class ExchangeRate {
     private Long id;
 
     @Column(nullable = false, length = 3)
-    @NotBlank(message = "來源貨幣為必填欄位")
-    @Size(min = 3, max = 3, message = "貨幣代碼必須為3個字元")
+    @NotBlank(message = "Source currency is required")
+    @Size(min = 3, max = 3, message = "Currency code must be exactly 3 characters")
     @JsonProperty("from_currency")
     private String fromCurrency;
 
     @Column(nullable = false, length = 3)
-    @NotBlank(message = "目標貨幣為必填欄位")
-    @Size(min = 3, max = 3, message = "貨幣代碼必須為3個字元")
+    @NotBlank(message = "Target currency is required")
+    @Size(min = 3, max = 3, message = "Currency code must be exactly 3 characters")
     @JsonProperty("to_currency")
     private String toCurrency;
 
     @Column(nullable = false, precision = 19, scale = 6)
-    @NotNull(message = "匯率為必填欄位")
-    @DecimalMin(value = "0.0", inclusive = false, message = "匯率必須大於0")
+    @NotNull(message = "Exchange rate is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Exchange rate must be greater than 0")
     private BigDecimal rate;
 
     @Column(nullable = false)

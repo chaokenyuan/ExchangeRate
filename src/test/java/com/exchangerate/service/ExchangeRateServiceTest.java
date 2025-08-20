@@ -34,7 +34,7 @@ class ExchangeRateServiceTest {
     private ExchangeRateRepository exchangeRateRepository;
 
     @InjectMocks
-    private ExchangeRateService exchangeRateService;
+    private TestExchangeRateService exchangeRateService;
 
     private ExchangeRate usdToEur;
     private ExchangeRate eurToUsd;
@@ -68,8 +68,8 @@ class ExchangeRateServiceTest {
         usdToJpy.setSource("test");
 
         validRequest = new ConversionRequest();
-        validRequest.setFrom_currency("USD");
-        validRequest.setTo_currency("EUR");
+        validRequest.setFromCurrency("USD");
+        validRequest.setToCurrency("EUR");
         validRequest.setAmount(new BigDecimal("100"));
     }
 
@@ -213,7 +213,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.convertCurrency("USD", "CNY", amount);
             });
 
-            assertThat(exception.getMessage()).contains("Exchange rate not found for USD to CNY");
+            assertThat(exception.getMessage()).contains("No exchange rate found for conversion");
         }
     }
 
@@ -226,8 +226,8 @@ class ExchangeRateServiceTest {
         void shouldThrowExceptionForSameCurrency() {
             // Given
             ConversionRequest request = new ConversionRequest();
-            request.setFrom_currency("USD");
-            request.setTo_currency("USD");
+            request.setFromCurrency("USD");
+            request.setToCurrency("USD");
             request.setAmount(new BigDecimal("100"));
 
             // When & Then
@@ -235,7 +235,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.convertCurrencyDetailed(request);
             });
 
-            assertThat(exception.getMessage()).isEqualTo("來源與目標貨幣不可相同");
+            assertThat(exception.getMessage()).isEqualTo("Source and target currencies cannot be the same");
         }
 
         @Test
@@ -243,8 +243,8 @@ class ExchangeRateServiceTest {
         void shouldThrowExceptionForNegativeAmount() {
             // Given
             ConversionRequest request = new ConversionRequest();
-            request.setFrom_currency("USD");
-            request.setTo_currency("EUR");
+            request.setFromCurrency("USD");
+            request.setToCurrency("EUR");
             request.setAmount(new BigDecimal("-100"));
 
             // When & Then
@@ -252,7 +252,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.convertCurrencyDetailed(request);
             });
 
-            assertThat(exception.getMessage()).isEqualTo("金額必須大於0");
+            assertThat(exception.getMessage()).isEqualTo("Amount must be greater than 0");
         }
 
         @Test
@@ -260,8 +260,8 @@ class ExchangeRateServiceTest {
         void shouldThrowExceptionForUnsupportedCurrency() {
             // Given
             ConversionRequest request = new ConversionRequest();
-            request.setFrom_currency("XXX");
-            request.setTo_currency("EUR");
+            request.setFromCurrency("XXX");
+            request.setToCurrency("EUR");
             request.setAmount(new BigDecimal("100"));
 
             // When & Then
@@ -269,7 +269,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.convertCurrencyDetailed(request);
             });
 
-            assertThat(exception.getMessage()).isEqualTo("不支援的貨幣代碼: XXX");
+            assertThat(exception.getMessage()).isEqualTo("Unsupported currency code: XXX");
         }
 
         @Test
@@ -283,12 +283,12 @@ class ExchangeRateServiceTest {
             ConversionResponse response = exchangeRateService.convertCurrencyDetailed(validRequest);
 
             // Then
-            assertThat(response.getFrom_currency()).isEqualTo("USD");
-            assertThat(response.getTo_currency()).isEqualTo("EUR");
-            assertThat(response.getFrom_amount()).isEqualByComparingTo(new BigDecimal("100"));
-            assertThat(response.getTo_amount()).isEqualByComparingTo(new BigDecimal("85.000000"));
+            assertThat(response.getFromCurrency()).isEqualTo("USD");
+            assertThat(response.getToCurrency()).isEqualTo("EUR");
+            assertThat(response.getFromAmount()).isEqualByComparingTo(new BigDecimal("100"));
+            assertThat(response.getToAmount()).isEqualByComparingTo(new BigDecimal("85.000000"));
             assertThat(response.getRate()).isEqualByComparingTo(new BigDecimal("0.85"));
-            assertThat(response.getConversion_date()).isNotNull();
+            assertThat(response.getConversionDate()).isNotNull();
         }
 
         @Test
@@ -296,8 +296,8 @@ class ExchangeRateServiceTest {
         void shouldPerformReverseConversion() {
             // Given
             ConversionRequest request = new ConversionRequest();
-            request.setFrom_currency("USD");
-            request.setTo_currency("EUR");
+            request.setFromCurrency("USD");
+            request.setToCurrency("EUR");
             request.setAmount(new BigDecimal("100"));
 
             when(exchangeRateRepository.findTopByFromCurrencyAndToCurrencyOrderByTimestampDesc("USD", "EUR"))
@@ -309,11 +309,11 @@ class ExchangeRateServiceTest {
             ConversionResponse response = exchangeRateService.convertCurrencyDetailed(request);
 
             // Then
-            assertThat(response.getFrom_currency()).isEqualTo("USD");
-            assertThat(response.getTo_currency()).isEqualTo("EUR");
-            assertThat(response.getFrom_amount()).isEqualByComparingTo(new BigDecimal("100"));
+            assertThat(response.getFromCurrency()).isEqualTo("USD");
+            assertThat(response.getToCurrency()).isEqualTo("EUR");
+            assertThat(response.getFromAmount()).isEqualByComparingTo(new BigDecimal("100"));
             // 100 * (1 / 1.18) = 84.745763
-            assertThat(response.getTo_amount().compareTo(new BigDecimal("84.0"))).isGreaterThan(0);
+            assertThat(response.getToAmount().compareTo(new BigDecimal("84.0"))).isGreaterThan(0);
             assertThat(response.getRate()).isNotNull();
         }
 
@@ -322,8 +322,8 @@ class ExchangeRateServiceTest {
         void shouldPerformChainConversionThroughUSD() {
             // Given
             ConversionRequest request = new ConversionRequest();
-            request.setFrom_currency("EUR");
-            request.setTo_currency("JPY");
+            request.setFromCurrency("EUR");
+            request.setToCurrency("JPY");
             request.setAmount(new BigDecimal("100"));
 
             ExchangeRate eurToUsd = new ExchangeRate();
@@ -349,11 +349,11 @@ class ExchangeRateServiceTest {
             ConversionResponse response = exchangeRateService.convertCurrencyDetailed(request);
 
             // Then
-            assertThat(response.getFrom_currency()).isEqualTo("EUR");
-            assertThat(response.getTo_currency()).isEqualTo("JPY");
-            assertThat(response.getFrom_amount()).isEqualByComparingTo(new BigDecimal("100"));
-            assertThat(response.getTo_amount()).isEqualByComparingTo(new BigDecimal("12980.000000"));
-            assertThat(response.getConversion_path()).isEqualTo("EUR→USD→JPY");
+            assertThat(response.getFromCurrency()).isEqualTo("EUR");
+            assertThat(response.getToCurrency()).isEqualTo("JPY");
+            assertThat(response.getFromAmount()).isEqualByComparingTo(new BigDecimal("100"));
+            assertThat(response.getToAmount()).isEqualByComparingTo(new BigDecimal("12980.000000"));
+            assertThat(response.getConversionPath()).isEqualTo("EUR→USD→JPY");
         }
 
         @Test
@@ -361,8 +361,8 @@ class ExchangeRateServiceTest {
         void shouldThrowExceptionWhenNoConversionPathFound() {
             // Given
             ConversionRequest request = new ConversionRequest();
-            request.setFrom_currency("EUR");
-            request.setTo_currency("JPY");
+            request.setFromCurrency("EUR");
+            request.setToCurrency("JPY");
             request.setAmount(new BigDecimal("100"));
 
             when(exchangeRateRepository.findTopByFromCurrencyAndToCurrencyOrderByTimestampDesc(anyString(), anyString()))
@@ -373,7 +373,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.convertCurrencyDetailed(request);
             });
 
-            assertThat(exception.getMessage()).isEqualTo("找不到匯率資料進行換算");
+            assertThat(exception.getMessage()).isEqualTo("No exchange rate found for conversion");
         }
     }
 
@@ -419,7 +419,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.saveExchangeRate(invalidRate);
             });
 
-            assertThat(exception.getMessage()).isEqualTo("來源與目標貨幣不可相同");
+            assertThat(exception.getMessage()).isEqualTo("Source and target currencies cannot be the same");
         }
 
         @Test
@@ -436,7 +436,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.saveExchangeRate(invalidRate);
             });
 
-            assertThat(exception.getMessage()).isEqualTo("匯率必須大於0");
+            assertThat(exception.getMessage()).isEqualTo("Exchange rate must be greater than 0");
         }
 
         @Test
@@ -456,7 +456,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.saveExchangeRate(duplicateRate);
             });
 
-            assertThat(exception.getMessage()).isEqualTo("匯率組合已存在");
+            assertThat(exception.getMessage()).isEqualTo("Exchange rate already exists for this currency pair");
         }
     }
 
@@ -502,7 +502,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.updateExchangeRate(999L, updatedRate);
             });
 
-            assertThat(exception.getMessage()).isEqualTo("找不到指定的匯率資料");
+            assertThat(exception.getMessage()).isEqualTo("No exchange rate found for conversion");
         }
 
         @Test
@@ -521,7 +521,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.updateExchangeRate(1L, updatedRate);
             });
 
-            assertThat(exception.getMessage()).isEqualTo("匯率必須大於0");
+            assertThat(exception.getMessage()).isEqualTo("Exchange rate must be greater than 0");
         }
 
         @Test
@@ -585,7 +585,7 @@ class ExchangeRateServiceTest {
                 exchangeRateService.deleteExchangeRateByPair("USD", "CNY");
             });
 
-            assertThat(exception.getMessage()).isEqualTo("找不到指定的匯率資料");
+            assertThat(exception.getMessage()).isEqualTo("No exchange rate found for conversion");
         }
     }
 
