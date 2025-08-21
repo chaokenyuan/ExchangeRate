@@ -61,3 +61,4 @@ data.sql
 buildSrc/.gradle
 target/*
 /.idea/
+/h2-data/
