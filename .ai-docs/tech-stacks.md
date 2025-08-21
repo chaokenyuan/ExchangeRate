@@ -19,29 +19,29 @@ framework:
   core: "Spring Boot 3.2.0"
   language_version: "Java 17+"
   build_tool: "Maven 3.9+"
-  
+
 dependencies:
   web: "spring-boot-starter-web"
   data: "spring-boot-starter-data-jpa"
   validation: "spring-boot-starter-validation"
   test: "spring-boot-starter-test"
   security: "spring-boot-starter-security"
-  
+
 database:
   development: "H2 Database"
   production: "MySQL/PostgreSQL"
-  
+
 testing:
   unit: "JUnit 5"
   integration: "Spring Boot Test"
   bdd: "Cucumber-JVM"
   api: "REST Assured"
-  
+
 tools:
   containerization: "Docker"
   documentation: "Swagger/OpenAPI 3"
   monitoring: "Spring Boot Actuator"
-  
+
 allowed_libraries:
   - "Jackson (JSON處理)"
   - "Lombok (程式碼簡化)"
@@ -69,22 +69,22 @@ framework:
   core: "Express.js 4.x"
   language_version: "Node.js 20.x"
   build_tool: "npm/yarn"
-  
+
 dependencies:
   web: "express"
   database: "mongoose/sequelize"
   validation: "joi/express-validator"
   test: "jest/mocha"
-  
+
 database:
   development: "SQLite/MongoDB"
   production: "MongoDB/PostgreSQL"
-  
+
 testing:
   unit: "Jest"
   integration: "Supertest"
   bdd: "Cucumber-JS"
-  
+
 allowed_libraries:
   - "Lodash (工具函式)"
   - "Axios (HTTP客戶端)"
@@ -106,7 +106,7 @@ framework:
   core: "Django 4.x / FastAPI"
   language_version: "Python 3.11+"
   build_tool: "pip/poetry"
-  
+
 testing:
   unit: "pytest"
   bdd: "behave"
@@ -126,7 +126,7 @@ framework:
   core: ".NET 8.0"
   web: "ASP.NET Core"
   build_tool: "dotnet CLI"
-  
+
 testing:
   unit: "xUnit/NUnit"
   bdd: "SpecFlow"
@@ -156,7 +156,7 @@ enforced_constraints:
 - **不可引入**其他語言或框架
 - **必須遵循**技術棧的編碼規範
 
-### 架構師 (Architect)  
+### 架構師 (Architect)
 - **可以提議**技術棧變更
 - **需要評估**新技術的相容性
 - **必須考慮**團隊技能和維護成本
@@ -193,7 +193,7 @@ recommended_ide:
 required_plugins:
   intellij:
     - "Lombok Plugin"
-    - "Spring Boot Plugin" 
+    - "Spring Boot Plugin"
     - "Cucumber for Java"
   vscode:
     - "Extension Pack for Java"

@@ -163,7 +163,7 @@ void shouldSaveSuccessfully() {
 
 ### 語意化方法包裝檢查清單
 - [ ] Given 區段使用 `givenMethodXxx()` 包裝準備邏輯
-- [ ] When 區段使用 `whenMethodXxx()` 包裝執行邏輯  
+- [ ] When 區段使用 `whenMethodXxx()` 包裝執行邏輯
 - [ ] Then 區段使用 `thenMethodXxx()` 包裝驗證邏輯
 - [ ] 測試邏輯完全封裝在語意化方法中
 - [ ] 使用 @DisplayName 提供中文描述

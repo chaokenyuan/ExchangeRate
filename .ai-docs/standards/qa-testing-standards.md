@@ -14,10 +14,10 @@
 void testMethodName() {
     // Given - 準備測試數據和前置條件
     givenMethodForSetup();
-    
+
     // When - 執行被測試的操作
     Result result = whenMethodForExecution();
-    
+
     // Then - 驗證結果和後置條件
     thenMethodForVerification(result);
 }
@@ -32,19 +32,19 @@ void testMethodName() {
 
 #### 輔助方法命名
 - **Given 方法**: 以 `given` 開頭
-  - `givenValidExchangeRate()`
-  - `givenUserWithPermission()`
-  - `givenMockServiceReturns()`
+    - `givenValidExchangeRate()`
+    - `givenUserWithPermission()`
+    - `givenMockServiceReturns()`
 
 - **When 方法**: 以 `when` 開頭
-  - `whenExecutingConversion()`
-  - `whenValidatingInput()`
-  - `whenCallingService()`
+    - `whenExecutingConversion()`
+    - `whenValidatingInput()`
+    - `whenCallingService()`
 
 - **Then 方法**: 以 `then` 開頭
-  - `thenShouldReturnSuccess()`
-  - `thenShouldThrowException()`
-  - `thenShouldHaveViolations()`
+    - `thenShouldReturnSuccess()`
+    - `thenShouldThrowException()`
+    - `thenShouldHaveViolations()`
 
 ### 實作範例
 
@@ -70,7 +70,7 @@ private void givenValidConversionRequestAndMockService() {
     validRequest.setFrom_currency("USD");
     validRequest.setTo_currency("EUR");
     validRequest.setAmount(new BigDecimal("100"));
-    
+
     expectedResponse = createExpectedResponse();
     when(exchangeRateService.convertCurrencyDetailed(any())).thenReturn(expectedResponse);
 }
@@ -88,31 +88,88 @@ private void thenShouldReturnSuccessfulConversion(ConversionResponse actual) {
 }
 ```
 
-#### ❌ 避免的測試結構
+#### ✅ 另一個正確的語意化測試範例
 
 ```java
 @Test
-void testConversion() {
-    // ❌ 混雜的代碼結構，沒有語意化方法包裝
-    ConversionRequest request = new ConversionRequest();
-    request.setFrom_currency("USD");
-    when(service.convert(any())).thenReturn(response);
-    ConversionResponse result = controller.convert(request);
-    assertEquals("EUR", result.getTo_currency());
+@DisplayName("GIVEN: 無效的貨幣代碼 WHEN: 執行轉換 THEN: 應該拋出驗證異常")
+void shouldThrowValidationExceptionForInvalidCurrency() {
+    // Given - 準備無效的請求數據
+    givenInvalidCurrencyRequest();
+
+    // When - 執行轉換並期望異常
+    Exception result = whenExecutingConversionWithExpectedException();
+
+    // Then - 驗證異常類型和訊息
+    thenShouldThrowValidationException(result);
 }
 
-@Test  
-void shouldConvertSuccessfully() {
-    // ❌ 雖有註解但沒有方法包裝
-    // Given
-    ConversionRequest request = new ConversionRequest();
-    request.setFrom_currency("USD");
-    
-    // When  
-    ConversionResponse result = service.convert(request);
-    
-    // Then
-    assertNotNull(result); // 直接驗證，未封裝
+// Given 輔助方法
+private void givenInvalidCurrencyRequest() {
+    invalidRequest = new ConversionRequest();
+    invalidRequest.setFrom_currency("INVALID");
+    invalidRequest.setTo_currency("EUR");
+    invalidRequest.setAmount(new BigDecimal("100"));
+}
+
+// When 輔助方法
+private Exception whenExecutingConversionWithExpectedException() {
+    return assertThrows(ValidationException.class, () -> {
+        conversionController.convertCurrency(invalidRequest);
+    });
+}
+
+// Then 輔助方法
+private void thenShouldThrowValidationException(Exception actual) {
+    assertThat(actual).isInstanceOf(ValidationException.class);
+    assertThat(actual.getMessage()).contains("無效的貨幣代碼");
+}
+```
+
+#### ✅ 複雜業務邏輯的語意化測試範例
+
+```java
+@Test
+@DisplayName("GIVEN: 匯率服務暫時不可用 WHEN: 執行匯率查詢 THEN: 應該使用快取回應")
+void shouldUseCachedRateWhenServiceUnavailable() {
+    // Given - 準備快取數據和模擬服務異常
+    givenCachedExchangeRateAndUnavailableService();
+
+    // When - 執行匯率查詢
+    ExchangeRateResponse result = whenQueryingExchangeRate();
+
+    // Then - 驗證使用了快取數據
+    thenShouldReturnCachedExchangeRate(result);
+}
+
+// Given 輔助方法
+private void givenCachedExchangeRateAndUnavailableService() {
+    // 準備快取數據
+    cachedRate = ExchangeRate.builder()
+            .fromCurrency("USD")
+            .toCurrency("EUR")
+            .rate(new BigDecimal("0.85"))
+            .timestamp(LocalDateTime.now().minusMinutes(5))
+            .build();
+    cacheService.put("USD_EUR", cachedRate);
+
+    // 模擬外部服務不可用
+    when(externalRateService.getLatestRate("USD", "EUR"))
+            .thenThrow(new ServiceUnavailableException("外部服務暫時不可用"));
+}
+
+// When 輔助方法  
+private ExchangeRateResponse whenQueryingExchangeRate() {
+    return exchangeRateService.getExchangeRate("USD", "EUR");
+}
+
+// Then 輔助方法
+private void thenShouldReturnCachedExchangeRate(ExchangeRateResponse actual) {
+    assertThat(actual.getFromCurrency()).isEqualTo("USD");
+    assertThat(actual.getToCurrency()).isEqualTo("EUR");
+    assertThat(actual.getRate()).isEqualByComparingTo(new BigDecimal("0.85"));
+    assertThat(actual.isFromCache()).isTrue();
+    assertThat(actual.getCacheTimestamp()).isEqualTo(cachedRate.getTimestamp());
 }
 ```
 
@@ -126,7 +183,7 @@ class SuccessfulOperationTests {
     // 成功案例的測試方法
 }
 
-@Nested  
+@Nested
 @DisplayName("驗證失敗測試")
 class ValidationFailureTests {
     // 驗證失敗的測試方法
@@ -152,9 +209,9 @@ void shouldThrowValidationExceptionForInvalidCurrencyCode() {
 // Then 方法中使用 AssertJ
 private void thenShouldHaveExpectedViolations(Set<ConstraintViolation<Object>> violations) {
     assertThat(violations)
-        .hasSize(1)
-        .extracting(ConstraintViolation::getMessage)
-        .contains("期望的錯誤訊息");
+            .hasSize(1)
+            .extracting(ConstraintViolation::getMessage)
+            .contains("期望的錯誤訊息");
 }
 ```
 
@@ -166,12 +223,12 @@ void shouldThrowBusinessExceptionForDuplicateRatePair() {
     // Given
     ExchangeRate givenExistingRate = createExistingExchangeRate();
     ExchangeRate givenDuplicateRate = createDuplicateExchangeRate();
-    
+
     // When & Then
     RuntimeException whenSavingDuplicate = assertThrows(RuntimeException.class, () -> {
         exchangeRateService.saveExchangeRate(givenDuplicateRate);
     });
-    
+
     thenShouldHaveExpectedErrorMessage(whenSavingDuplicate, "匯率組合已存在");
 }
 ```
@@ -187,11 +244,11 @@ void shouldHandleServiceExceptionInController() {
     ConversionRequest givenRequest = createValidRequest();
     RuntimeException givenServiceException = new RuntimeException("服務異常");
     when(exchangeRateService.convertCurrencyDetailed(givenRequest))
-        .thenThrow(givenServiceException);
-    
+            .thenThrow(givenServiceException);
+
     // When - 執行控制器方法
     ResponseEntity<?> whenCallingController = conversionController.convertCurrency(givenRequest);
-    
+
     // Then - 驗證錯誤處理
     thenShouldReturnErrorResponse(whenCallingController, "服務異常");
 }
@@ -205,7 +262,7 @@ void shouldHandleServiceExceptionInController() {
 - [ ] 使用了適當的輔助方法來封裝複雜邏輯
 - [ ] 測試類別使用 @Nested 進行邏輯分組
 
-### 可讀性檢查  
+### 可讀性檢查
 - [ ] @DisplayName 使用中文提供清晰的測試描述
 - [ ] 測試方法名稱以 should 開頭描述期望行為
 - [ ] 測試邏輯清晰，容易理解測試意圖
@@ -222,7 +279,7 @@ void shouldHandleServiceExceptionInController() {
 
 ## 範例檔案
 - `ExchangeRateServiceTest.java` - 服務層測試範例
-- `ConversionControllerTest.java` - 控制器測試範例  
+- `ConversionControllerTest.java` - 控制器測試範例
 - `ConversionRequestTest.java` - DTO 驗證測試範例
 - `ExchangeRateTest.java` - 模型驗證測試範例
 

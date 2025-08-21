@@ -127,6 +127,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JSON processing for unit testing -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Testing utilities -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -156,23 +164,22 @@
                 </configuration>
             </plugin>
 
-            <!-- Surefire Plugin for running unit tests -->
+            <!-- Surefire Plugin for running all tests including Cucumber -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
                 <configuration>
                     <includes>
-                        <include>**/*Test.java</include>
                         <include>**/*Tests.java</include>
+                        <include>**/*CucumberTest.java</include>
+                        <include>**/*CucumberTestRunner.java</include>
                     </includes>
-                    <excludes>
-                        <exclude>**/*CucumberTest.java</exclude>
-                        <exclude>**/*CucumberTestRunner.java</exclude>
-                    </excludes>
                     <systemPropertyVariables>
                         <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
                     </systemPropertyVariables>
+                    <!-- Simplified reporting format -->
+                    <reportFormat>brief</reportFormat>
                 </configuration>
             </plugin>
 

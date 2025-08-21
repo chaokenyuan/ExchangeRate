@@ -100,9 +100,9 @@ prompt_template: |
 @RequestMapping("/api/exchange-rates")
 @RequiredArgsConstructor  // 自動生成建構子
 public class ExchangeRateController {
-    
+
     private final ExchangeRateService service;  // final field + 建構子注入
-    
+
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody ExchangeRate request) {
         // 統一錯誤處理
@@ -110,7 +110,7 @@ public class ExchangeRateController {
             return ResponseEntity.ok(service.save(request));
         } catch (BusinessException e) {
             return ResponseEntity.badRequest()
-                .body(Map.of("error", e.getMessage()));
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 }
@@ -122,20 +122,20 @@ public class ExchangeRateController {
 @RequiredArgsConstructor
 @Transactional
 public class ExchangeRateService {
-    
+
     private final ExchangeRateRepository repository;
-    
+
     public ExchangeRate save(ExchangeRate request) {
         // 業務邏輯驗證
         validateBusinessRules(request);
-        
+
         // 資料處理
         request.setFromCurrency(request.getFromCurrency().toUpperCase());
         request.setToCurrency(request.getToCurrency().toUpperCase());
-        
+
         return repository.save(request);
     }
-    
+
     private void validateBusinessRules(ExchangeRate request) {
         if (request.getFromCurrency().equals(request.getToCurrency())) {
             throw new BusinessException("來源與目標貨幣不可相同");
@@ -164,7 +164,7 @@ public class ExchangeRate {
     private String fromCurrency;
 
     @Column(nullable = false, length = 3)
-    @NotBlank(message = "目標貨幣為必填欄位") 
+    @NotBlank(message = "目標貨幣為必填欄位")
     @Size(min = 3, max = 3, message = "貨幣代碼必須為3個字元")
     @JsonProperty("to_currency")
     private String toCurrency;
@@ -191,20 +191,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Map<String, String>> handleBusinessException(BusinessException e) {
         return ResponseEntity.badRequest()
-            .body(Map.of("error", e.getMessage()));
+                .body(Map.of("error", e.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationException(
             MethodArgumentNotValidException e) {
         String message = e.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .collect(Collectors.joining(", "));
-            
+                .getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+
         return ResponseEntity.badRequest()
-            .body(Map.of("error", message));
+                .body(Map.of("error", message));
     }
 }
 ```
@@ -213,15 +213,15 @@ public class GlobalExceptionHandler {
 ```java
 @Repository
 public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long> {
-    
+
     // Spring Data JPA方法命名規範
     Optional<ExchangeRate> findTopByFromCurrencyAndToCurrencyOrderByTimestampDesc(
-        String fromCurrency, String toCurrency);
-    
+            String fromCurrency, String toCurrency);
+
     List<ExchangeRate> findByFromCurrency(String fromCurrency);
-    
+
     Page<ExchangeRate> findByFromCurrency(String fromCurrency, Pageable pageable);
-    
+
     // 避免複雜的@Query，優先使用方法命名
 }
 ```

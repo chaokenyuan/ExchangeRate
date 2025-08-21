@@ -201,12 +201,12 @@ collaboration_points:
     - SA提供需求分析
     - SD提供設計方案
     - 架構師評估技術方案
-  
+
   execution_phase:
     - 開發員實作功能
     - QA編寫並執行測試
     - 代碼審查員進行審查
-  
+
   reporting_phase:
     - 各角色提交執行報告
     - SA確認需求滿足度
@@ -220,12 +220,12 @@ quality_checkpoints:
     - 計劃完整性檢查
     - 技術方案可行性評估
     - 風險評估合理性確認
-  
+
   execution_review:
     - 代碼品質檢查
     - 功能正確性驗證
     - 測試覆蓋率確認
-  
+
   delivery_review:
     - 交付完整性檢查
     - 文檔同步性確認

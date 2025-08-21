@@ -232,9 +232,9 @@ reporting_focus:
 ### BDD測試 (Cucumber)
 - **Feature檔案**: {檔案數}
 - **測試場景**: {總場景數}
-  - ✅ 通過: {通過數} ({通過率}%)
-  - ❌ 失敗: {失敗數}
-  - ⏸️ 跳過: {跳過數}
+    - ✅ 通過: {通過數} ({通過率}%)
+    - ❌ 失敗: {失敗數}
+    - ⏸️ 跳過: {跳過數}
 
 ### 測試分類統計
 | 測試類型 | 執行數 | 通過數 | 失敗數 | 通過率 |
@@ -397,15 +397,15 @@ collaboration_checkpoints:
   requirements_review:
     participants: [SA, SD, 架構師, QA]
     deliverable: 需求確認書
-  
+
   design_review:
     participants: [SD, 架構師, 開發員]
     deliverable: 設計確認書
-  
+
   code_review:
     participants: [開發員, 代碼審查員, QA]
     deliverable: 代碼審查報告
-  
+
   acceptance_review:
     participants: [SA, QA, 架構師]
     deliverable: 驗收報告

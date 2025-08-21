@@ -22,13 +22,13 @@ startup_sequence:
   2. 技術棧檢查
   3. 技術角色檢查
   4. 如果 tech_stack_selected == false:
-     - 顯示技術棧選擇界面
-     - 鎖定所有開發功能
-     - 等待技術棧選擇
+    - 顯示技術棧選擇界面
+    - 鎖定所有開發功能
+    - 等待技術棧選擇
   5. 如果 role_selected == false:
-     - 顯示技術角色選擇界面
-     - 根據技術棧限制角色工具
-     - 等待角色選擇
+    - 顯示技術角色選擇界面
+    - 根據技術棧限制角色工具
+    - 等待角色選擇
   6. 角色確認後解鎖對應工具
 ```
 
@@ -67,7 +67,7 @@ status: "已選定並鎖定"
 ### 可用技術棧
 - 🟢 **Spring Boot (Java)** - 當前使用
 - 🟡 **Node.js (Express)** - 可選
-- 🟡 **Python (Django/FastAPI)** - 可選  
+- 🟡 **Python (Django/FastAPI)** - 可選
 - 🟡 **.NET Core (C#)** - 可選
 
 ---
@@ -79,22 +79,22 @@ status: "已選定並鎖定"
 每個技術角色的詳細配置已移至獨立檔案，請參考以下連結：
 
 1️⃣ **[🏗️ 架構師 (Architect)](.ai-docs/role-architect.md)**
-   - 系統架構設計、技術選型、架構評估
+- 系統架構設計、技術選型、架構評估
 
 2️⃣ **[👨‍💻 開發員 (Developer)](.ai-docs/role-developer.md)**
-   - 功能開發、代碼實現、技術問題解決
+- 功能開發、代碼實現、技術問題解決
 
 3️⃣ **[🧪 QA測試員 (QA Tester)](.ai-docs/role-qa-tester.md)**
-   - 測試策略、案例設計、Gherkin規格撰寫
+- 測試策略、案例設計、Gherkin規格撰寫
 
 4️⃣ **[🔍 代碼審查員 (Code Reviewer)](.ai-docs/role-code-reviewer.md)**
-   - 代碼審查、品質檢查、標準維護
+- 代碼審查、品質檢查、標準維護
 
 5️⃣ **[📊 SA系統分析師 (System Analyst)](.ai-docs/role-system-analyst.md)**
-   - 業務需求分析、流程設計、驗收條件定義
+- 業務需求分析、流程設計、驗收條件定義
 
 6️⃣ **[📐 SD系統設計師 (System Designer)](.ai-docs/role-system-designer.md)**
-   - 系統設計、介面規劃、技術規格
+- 系統設計、介面規劃、技術規格
 
 ### 角色快速參考表
 
@@ -118,22 +118,22 @@ status: "已選定並鎖定"
 ⚠️  請選擇您的技術角色才能開始工作：
 
 1️⃣ 🏗️  架構師 (Architect) [Spring專家]
-   └─ Spring Boot架構設計、微服務規劃、技術選型
+└─ Spring Boot架構設計、微服務規劃、技術選型
 
 2️⃣ 👨‍💻 開發員 (Developer) [Spring開發者]
-   └─ Spring Boot應用開發、RESTful API、JPA實作
+└─ Spring Boot應用開發、RESTful API、JPA實作
 
 3️⃣ 🧪 QA測試員 (QA Tester) [Spring測試者]
-   └─ JUnit 5測試、Cucumber-JVM、REST Assured
+└─ JUnit 5測試、Cucumber-JVM、REST Assured
 
 4️⃣ 🔍 代碼審查員 (Code Reviewer) [Spring規範者]
-   └─ Spring最佳實踐審查、Java規範檢查
+└─ Spring最佳實踐審查、Java規範檢查
 
 5️⃣ 📊 SA系統分析師 (System Analyst) [需求分析師]
-   └─ 業務需求分析、.feature規格撰寫
+└─ 業務需求分析、.feature規格撰寫
 
 6️⃣ 📐 SD系統設計師 (System Designer) [設計師]
-   └─ 系統設計、資料庫設計、API規格
+└─ 系統設計、資料庫設計、API規格
 
 💡 請回覆數字 1-6 選擇角色，或輸入 "help" 查看詳細說明
 🔒 未選擇角色前，所有技術功能將保持鎖定狀態
@@ -147,46 +147,46 @@ def initialize_tech_role(role_id):
     # 檢查技術棧是否已選定
     if not system_state.tech_stack_selected:
         return "❌ 請先確認技術棧配置"
-    
+
     tech_roles = {
         "1": "architect",
-        "2": "developer", 
+        "2": "developer",
         "3": "qa_tester",
         "4": "code_reviewer",
         "5": "system_analyst",
         "6": "system_designer"
     }
-    
+
     if role_id not in tech_roles:
         return "❌ 請選擇有效的技術角色 (1-6)"
-    
+
     selected_role = tech_roles[role_id]
     role_config = load_tech_role_config(selected_role)
-    
+
     # 應用技術棧限制
     role_config = apply_tech_stack_constraints(
-        role_config, 
+        role_config,
         system_state.current_tech_stack
     )
-    
+
     # 系統解鎖
     system_state.role_selected = True
     system_state.current_role = selected_role
     system_state.system_locked = False
     system_state.session_active = True
-    
+
     # 載入專業工具（受技術棧限制）
     enable_tech_tools(role_config.tools)
     set_context_template(role_config.context_focus)
     enforce_tech_stack_rules(system_state.current_tech_stack)
-    
+
     return generate_role_confirmation(role_config)
 
 def apply_tech_stack_constraints(role_config, tech_stack):
     """根據技術棧限制角色功能"""
     if tech_stack == "springboot":
         role_config.allowed_technologies = [
-            "Spring Boot", "Spring MVC", "Spring Data", 
+            "Spring Boot", "Spring MVC", "Spring Data",
             "Spring Security", "JPA/Hibernate", "Maven",
             "JUnit 5", "Cucumber-JVM", "REST Assured"
         ]
@@ -209,15 +209,15 @@ def apply_tech_stack_constraints(role_config, tech_stack):
 📋 **工作框架**: {thinking_framework}
 
 🔒 **技術限制**:
-   • 只能使用: {allowed_technologies}
-   • 禁止使用: {prohibited_technologies}
+• 只能使用: {allowed_technologies}
+• 禁止使用: {prohibited_technologies}
 
 🚀 所有技術功能已解鎖，準備在Spring Boot環境下工作！
 
 💡 可用命令:
-   • "switch-role" - 重新選擇技術角色
-   • "role-info" - 查看角色詳細資訊  
-   • "team-status" - 查看團隊角色狀態
+• "switch-role" - 重新選擇技術角色
+• "role-info" - 查看角色詳細資訊  
+• "team-status" - 查看團隊角色狀態
 ```
 
 ## 🛠️ 角色專屬工具配置
@@ -231,15 +231,15 @@ def apply_tech_stack_constraints(role_config, tech_stack):
 ```yaml
 switch_confirmation: |
   ⚠️  確認角色切換
-  
+
   當前角色: {current_role}
   目標角色: {target_role}
-  
+
   切換將會:
   • 清除當前工作狀態
   • 重置專業工具配置
   • 載入新角色設定
-  
+
   確認切換嗎？(yes/no)
 ```
 
@@ -247,10 +247,10 @@ switch_confirmation: |
 ```yaml
 locked_response: |
   🔒 技術功能已鎖定
-  
+
   請先選擇技術角色：
   1. 架構師 2. 開發員 3. QA測試員 4. 代碼審查員 5. SA系統分析師 6. SD系統設計師
-  
+
   輸入數字 1-6 進行選擇
 ```
 
@@ -267,7 +267,7 @@ collaboration_hints:
   qa_to_reviewer: "測試發現問題，可切換至Reviewer角色審查代碼"
   reviewer_to_architect: "代碼審查完成，如需架構調整請切換至架構師"
   reviewer_to_sa: "如需重新分析需求，可切換至SA系統分析師"
-  
+
 sa_qa_bdd_workflow:
   step1: "SA分析UR並定義驗收條件(AC)"
   step2: "SA與QA共同確認測試場景覆蓋度"
