@@ -20,14 +20,14 @@ Feature: 資料驗證與業務規則
 
     Examples: 業務規則驗證
       | from_currency | to_currency | rate  | error_message            |
-      | USD          | USD         | 1.0   | 來源與目標貨幣不可相同      |
-      | USD          | TWD         | 0     | 匯率必須大於0             |
-      | USD          | TWD         | -32.5 | 匯率必須大於0             |
+      | USD          | USD         | 1.0   | Source and target currencies cannot be the same      |
+      | USD          | TWD         | 0     | Exchange rate must be greater than 0             |
+      | USD          | TWD         | -32.5 | Exchange rate must be greater than 0             |
 
     Examples: 貨幣代碼驗證
       | from_currency | to_currency | rate | error_message            |
-      | ABC          | TWD         | 32.5 | 不支援的貨幣代碼: ABC      |
-      | USD          | XYZ         | 32.5 | 不支援的貨幣代碼: XYZ      |
+      | ABC          | TWD         | 32.5 | Unsupported currency code: ABC      |
+      | USD          | XYZ         | 32.5 | Unsupported currency code: XYZ      |
 
     Examples: 必填欄位驗證
       | from_currency | to_currency | rate | error_message      |
@@ -47,7 +47,7 @@ Feature: 資料驗證與業務規則
       }
       """
     Then 回應狀態碼應該是 400
-    And 回應應該包含錯誤訊息 "匯率必須大於0"
+    And 回應應該包含錯誤訊息 "Exchange rate must be greater than 0"
 
     Examples:
       | rate  |
@@ -71,18 +71,18 @@ Feature: 資料驗證與業務規則
 
     Examples: 業務規則驗證
       | from | to  | amount | status_code | error_message           |
-      | USD  | USD | 100    | 400        | 來源與目標貨幣不可相同      |
-      | USD  | TWD | 0      | 400        | 金額必須大於0            |
-      | USD  | TWD | -100   | 400        | 金額必須大於0            |
+      | USD  | USD | 100    | 400        | Source and target currencies cannot be the same      |
+      | USD  | TWD | 0      | 400        | Amount must be greater than 0            |
+      | USD  | TWD | -100   | 400        | Amount must be greater than 0            |
 
     Examples: 貨幣代碼驗證
       | from | to  | amount | status_code | error_message           |
-      | ABC  | TWD | 100    | 400        | 不支援的貨幣代碼: ABC     |
-      | USD  | XYZ | 100    | 400        | 不支援的貨幣代碼: XYZ     |
+      | ABC  | TWD | 100    | 400        | Unsupported currency code: ABC     |
+      | USD  | XYZ | 100    | 400        | Unsupported currency code: XYZ     |
 
     Examples: 找不到匯率
       | from | to  | amount | status_code | error_message           |
-      | EUR  | TWD | 100    | 400        | 找不到可用的匯率          |
+      | EUR  | TWD | 100    | 400        | No exchange rate found for conversion          |
 
   # ==================== 貨幣代碼標準化 ====================
 

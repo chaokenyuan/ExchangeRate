@@ -14,6 +14,9 @@ public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long
 
     Optional<ExchangeRate> findTopByFromCurrencyAndToCurrencyOrderByTimestampDesc(
             String fromCurrency, String toCurrency);
+    
+    // 添加單筆查詢方法
+    Optional<ExchangeRate> findByFromCurrencyAndToCurrency(String fromCurrency, String toCurrency);
 
     List<ExchangeRate> findByFromCurrency(String fromCurrency);
     Page<ExchangeRate> findByFromCurrency(String fromCurrency, Pageable pageable);
@@ -21,6 +24,10 @@ public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long
     List<ExchangeRate> findByToCurrency(String toCurrency);
     Page<ExchangeRate> findByToCurrency(String toCurrency, Pageable pageable);
 
-    List<ExchangeRate> findByFromCurrencyAndToCurrency(String fromCurrency, String toCurrency);
-    Page<ExchangeRate> findByFromCurrencyAndToCurrency(String fromCurrency, String toCurrency, Pageable pageable);
+    List<ExchangeRate> findAllByFromCurrencyAndToCurrency(String fromCurrency, String toCurrency);
+    Page<ExchangeRate> findAllByFromCurrencyAndToCurrency(String fromCurrency, String toCurrency, Pageable pageable);
+    
+    // 添加 exists 和 count 方法
+    boolean existsByFromCurrencyAndToCurrency(String fromCurrency, String toCurrency);
+    long countByFromCurrency(String fromCurrency);
 }

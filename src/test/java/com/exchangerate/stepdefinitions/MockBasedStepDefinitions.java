@@ -1096,7 +1096,7 @@ public class MockBasedStepDefinitions {
                 // 驗證更新的匯率值
                 BigDecimal newRate = new BigDecimal(requestBody.get("rate").toString());
                 if (newRate.compareTo(BigDecimal.ZERO) <= 0) {
-                    lastResponse = new MockResponse(400, Map.of("error", "匯率必須大於0"));
+                    lastResponse = new MockResponse(400, Map.of("error", "Exchange rate must be greater than 0"));
                     return;
                 }
                 

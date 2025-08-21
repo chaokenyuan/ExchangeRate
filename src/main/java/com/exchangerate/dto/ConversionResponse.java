@@ -15,13 +15,13 @@ import java.time.LocalDateTime;
     description = "貨幣轉換響應資料模型",
     example = """
         {
-            "from_currency": "USD",
-            "to_currency": "EUR",
-            "from_amount": 100.00,
-            "to_amount": 85.000000,
+            "fromCurrency": "USD",
+            "toCurrency": "EUR",
+            "fromAmount": 100.00,
+            "toAmount": 85.000000,
             "rate": 0.85,
-            "conversion_date": "2024-01-15T10:30:00",
-            "conversion_path": "USD→EUR"
+            "conversionDate": "2024-01-15T10:30:00",
+            "conversionPath": "USD→EUR"
         }
         """
 )
@@ -31,28 +31,24 @@ public class ConversionResponse {
         description = "來源貨幣代碼",
         example = "USD"
     )
-    @JsonProperty("from_currency")
     private String fromCurrency;
     
     @Schema(
         description = "目標貨幣代碼",
         example = "EUR"
     )
-    @JsonProperty("to_currency")
     private String toCurrency;
     
     @Schema(
         description = "來源金額",
         example = "100.00"
     )
-    @JsonProperty("from_amount")
     private BigDecimal fromAmount;
     
     @Schema(
         description = "轉換後金額",
         example = "85.000000"
     )
-    @JsonProperty("to_amount")
     private BigDecimal toAmount;
     
     @Schema(
@@ -65,7 +61,6 @@ public class ConversionResponse {
         description = "轉換執行時間",
         example = "2024-01-15T10:30:00"
     )
-    @JsonProperty("conversion_date")
     private LocalDateTime conversionDate;
     
     @Schema(
@@ -73,6 +68,5 @@ public class ConversionResponse {
         example = "USD→EUR",
         nullable = true
     )
-    @JsonProperty("conversion_path")
     private String conversionPath;
 }

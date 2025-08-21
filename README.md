@@ -2,7 +2,7 @@
 
 ## 專案簡介
 
-這是一個基於 Spring Boot 的匯率查詢與轉換服務系統，採用BDD (行為驅動開發) 方法論開發。系統提供完整的 RESTful API 來管理和查詢各種貨幣之間的匯率資料，並支援即時貨幣換算功能。
+這是一個基於 Spring Boot 3.2.0 的匯率查詢與轉換服務系統，採用 BDD (行為驅動開發) 方法論開發。系統提供完整的 RESTful API 來管理和查詢各種貨幣之間的匯率資料，並支援即時貨幣換算功能。
 
 ## 🛠️ 技術棧
 
@@ -14,8 +14,8 @@
 - **Maven 3.9+** - 專案構建工具
 
 **資料庫**
-- **H2 Database** - 開發/測試環境記憶體資料庫
-- **MySQL/PostgreSQL** - 生產環境資料庫選項
+- **H2 Database** - 記憶體資料庫（內嵌模式）
+- **JPA/Hibernate** - ORM 框架
 
 **測試框架**
 - **JUnit 5** - 單元測試框架
@@ -27,9 +27,10 @@
 
 **開發工具**
 - **Lombok** - 減少樣板程式碼
-- **Jackson** - JSON處理
+- **Jackson** - JSON 處理
 - **Hibernate Validator** - 資料驗證
-- **SpringDoc OpenAPI 3** - API文檔生成 (Swagger)
+- **SpringDoc OpenAPI 2.2.0** - API 文檔生成 (Swagger UI)
+- **Spring Boot DevTools** - 開發時熱部署
 
 ## 📋 技術規範與約束
 
@@ -84,59 +85,98 @@ ExchangeRate/
 │   └── ai-docs-architecture.puml             # .ai-docs 架構層次圖
 └── src/
     ├── main/java/com/exchangerate/           # 主要應用程式碼
-    │   ├── ExchangeRateApplication.java      # Spring Boot主程式
-    │   ├── config/DataInitializer.java       # 資料初始化
-    │   ├── controller/                       # REST API控制器層
-    │   │   ├── ExchangeRateController.java   # 匯率CRUD API
-    │   │   └── ConversionController.java     # 貨幣轉換API
+    │   ├── ExchangeRateApplication.java      # Spring Boot 主程式
+    │   ├── config/                           # 設定檔
+    │   │   ├── DataInitializer.java          # 資料初始化
+    │   │   └── OpenApiConfig.java            # OpenAPI 設定
+    │   ├── constants/                        # 常數定義
+    │   │   ├── CurrencyConstants.java        # 貨幣常數
+    │   │   ├── ErrorMessages.java            # 錯誤訊息（中文）
+    │   │   └── EnglishErrorMessages.java     # 錯誤訊息（英文）
+    │   ├── controller/                       # REST API 控制器層
+    │   │   ├── ExchangeRateController.java   # 匯率 CRUD API
+    │   │   └── ConversionController.java     # 貨幣轉換 API
     │   ├── dto/                              # 數據傳輸對象
     │   │   ├── ConversionRequest.java        # 轉換請求模型
     │   │   └── ConversionResponse.java       # 轉換回應模型
-    │   ├── model/ExchangeRate.java           # JPA實體模型
-    │   ├── repository/ExchangeRateRepository.java # Spring Data JPA存取層
-    │   └── service/ExchangeRateService.java  # 業務邏輯層
+    │   ├── exception/                        # 例外處理
+    │   │   ├── GlobalExceptionHandler.java   # 全域例外處理器
+    │   │   ├── ResourceNotFoundException.java # 資源未找到例外
+    │   │   └── DuplicateResourceException.java # 重複資源例外
+    │   ├── model/                            # 實體模型
+    │   │   └── ExchangeRate.java             # JPA 實體模型
+    │   ├── repository/                       # 資料存取層
+    │   │   └── ExchangeRateRepository.java   # Spring Data JPA 存取層
+    │   └── service/                          # 業務邏輯層
+    │       └── ExchangeRateService.java      # 匯率服務
     ├── main/resources/
     │   └── application.properties            # Spring Boot配置
     └── test/                                 # 測試程式碼
         ├── java/com/exchangerate/
-        │   ├── CucumberTestRunner.java       # Cucumber測試執行器
-        │   ├── ExchangeRateApplicationTests.java # Spring Boot測試
-        │   ├── config/CucumberSpringConfiguration.java # Cucumber Spring配置
-        │   ├── hooks/                        # Cucumber測試掛鉤
-        │   │   ├── ApiHooks.java            # API測試掛鉤
-        │   │   └── DatabaseHooks.java       # 資料庫測試掛鉤
-        │   └── stepdefinitions/              # Cucumber步驟定義
-        │       └── ExchangeRateStepDefinitions.java # BDD測試步驟實作
+        │   ├── CucumberTestRunner.java       # Cucumber 測試執行器
+        │   ├── config/                       # 測試設定
+        │   │   ├── TestSecurityInterceptor.java # 測試安全攔截器
+        │   │   └── TestWebConfig.java        # 測試 Web 設定
+        │   ├── controller/                   # 控制器測試
+        │   │   └── ConversionControllerTest.java # 轉換控制器測試
+        │   ├── dto/                          # DTO 測試
+        │   │   └── ConversionRequestTest.java # 轉換請求測試
+        │   ├── mock/                         # Mock 服務
+        │   │   ├── MockExchangeRateService.java # Mock 匯率服務
+        │   │   └── MockServiceFactory.java   # Mock 服務工廠
+        │   ├── model/                        # 模型測試
+        │   │   └── ExchangeRateTest.java     # 匯率實體測試
+        │   ├── service/                      # 服務測試
+        │   │   ├── ExchangeRateServiceTest.java # 匯率服務測試
+        │   │   └── TestExchangeRateService.java # 測試用匯率服務
+        │   └── stepdefinitions/              # Cucumber 步驟定義
+        │       ├── MockBasedStepDefinitions.java # Mock 基礎步驟定義
+        │       └── SessionContext.java       # 會話上下文
         └── resources/
             ├── application-test.properties   # 測試環境配置
-            └── features/                     # Gherkin測試規格
-                └── exchange-rate-api.feature # 匯率API功能測試規格
+            ├── junit-platform.properties     # JUnit 平台設定
+            └── features/                     # Gherkin 測試規格
+                ├── currency-conversion.feature # 貨幣轉換功能測試
+                ├── data-validation.feature   # 資料驗證測試
+                ├── exchange-rate-api.feature # 匯率 API 功能測試
+                ├── exchange-rate-management.feature # 匯率管理測試
+                ├── performance-limitations.feature # 效能限制測試
+                ├── security-authorization.feature # 安全授權測試
+                └── system-integration.feature # 系統整合測試
 ```
 
 ### 核心功能
 
-基於TDD開發的完整匯率API系統，具備以下功能：
+基於 BDD/TDD 開發的完整匯率 API 系統，具備以下功能：
 
-**1. CRUD匯率管理**
+**1. CRUD 匯率管理**
 - ✅ 新增匯率資料 (POST /api/exchange-rates)
 - ✅ 查詢所有匯率 (GET /api/exchange-rates)
-- ✅ 根據ID查詢 (GET /api/exchange-rates/{id})
+- ✅ 根據 ID 查詢 (GET /api/exchange-rates/{id})
 - ✅ 特定匯率對查詢 (GET /api/exchange-rates/{from}/{to})
-- ✅ 更新匯率資料 (PUT /api/exchange-rates/{from}/{to})
-- ✅ 刪除匯率資料 (DELETE /api/exchange-rates/{from}/{to})
+- ✅ 更新匯率資料 (PUT /api/exchange-rates/{id} 或 PUT /api/exchange-rates/{from}/{to})
+- ✅ 刪除匯率資料 (DELETE /api/exchange-rates/{id} 或 DELETE /api/exchange-rates/{from}/{to})
 
 **2. 智慧貨幣換算**
-- ✅ 詳細轉換API (POST /api/convert)
+- ✅ 詳細轉換 API (POST /api/convert)
+- ✅ 簡易轉換 API (GET /api/exchange-rates/convert)
+- ✅ 快速匯率查詢 (GET /api/exchange-rates/rate)
 - ✅ 直接匯率轉換 (USD→TWD)
 - ✅ 反向匯率計算 (TWD→USD = 1/rate)
 - ✅ 鏈式中介轉換 (EUR→USD→TWD)
-- ✅ 精確度控制 (BigDecimal 6位小數)
+- ✅ 精確度控制 (BigDecimal 6 位小數)
 
 **3. 高級查詢功能**
 - ✅ 過濾條件查詢 (?from=USD&to=TWD)
 - ✅ 分頁查詢支援 (?page=1&limit=50)
-- ✅ 分頁元數據 (total_pages, total_records, has_next)
+- ✅ 分頁元數據 (current_page, total_pages, total_records, has_next)
 - ✅ 靈活回應格式 (陣列或分頁物件)
+
+**4. 系統監控與管理**
+- ✅ Spring Boot Actuator 健康檢查
+- ✅ H2 Console 資料庫管理介面
+- ✅ Swagger UI 互動式 API 文檔
+- ✅ 自動資料初始化
 
 
 
@@ -168,10 +208,15 @@ ExchangeRate/
 | GET | `/api/exchange-rates` | 取得所有匯率資料 | from, to, page, limit (可選) |
 | GET | `/api/exchange-rates/{id}` | 根據 ID 取得匯率 | id: 匯率記錄 ID |
 | GET | `/api/exchange-rates/{from}/{to}` | 取得特定匯率對 | from: 來源貨幣, to: 目標貨幣 |
+| GET | `/api/exchange-rates/convert` | 簡易貨幣轉換 | from, to, amount (查詢參數) |
+| GET | `/api/exchange-rates/rate` | 快速匯率查詢 | from, to (查詢參數) |
 | POST | `/api/exchange-rates` | 新增匯率資料 | Request Body: ExchangeRate JSON |
+| POST | `/api/exchange-rates/convert` | 詳細貨幣轉換（舊端點） | Request Body: ConversionRequest JSON |
+| POST | `/api/convert` | 詳細貨幣轉換（主要端點） | Request Body: ConversionRequest JSON |
+| PUT | `/api/exchange-rates/{id}` | 根據 ID 更新匯率 | id: 匯率記錄 ID<br>Request Body: 更新資料 |
 | PUT | `/api/exchange-rates/{from}/{to}` | 更新特定匯率對 | from, to: 貨幣對<br>Request Body: 更新資料 |
+| DELETE | `/api/exchange-rates/{id}` | 根據 ID 刪除匯率 | id: 匯率記錄 ID |
 | DELETE | `/api/exchange-rates/{from}/{to}` | 刪除特定匯率對 | from, to: 貨幣對 |
-| POST | `/api/convert` | 智慧貨幣轉換 | Request Body: ConversionRequest JSON |
 
 ### API 使用範例
 
@@ -182,6 +227,7 @@ GET /api/exchange-rates/USD/TWD
 
 #### 2. 智慧貨幣轉換
 ```bash
+# 詳細轉換（推薦）
 POST /api/convert
 Content-Type: application/json
 
@@ -190,6 +236,9 @@ Content-Type: application/json
   "to_currency": "TWD", 
   "amount": 100
 }
+
+# 簡易轉換
+GET /api/exchange-rates/convert?from=USD&to=TWD&amount=100
 ```
 
 #### 3. 新增匯率資料
@@ -212,12 +261,31 @@ GET /api/exchange-rates?page=1&limit=10&from=USD
 
 #### 5. 更新匯率
 ```bash
+# 根據貨幣對更新
 PUT /api/exchange-rates/USD/TWD
 Content-Type: application/json
 
 {
   "rate": 33.0
 }
+
+# 根據 ID 更新
+PUT /api/exchange-rates/1
+Content-Type: application/json
+
+{
+  "rate": 33.0,
+  "source": "Updated Bank"
+}
+```
+
+#### 6. 刪除匯率
+```bash
+# 根據貨幣對刪除
+DELETE /api/exchange-rates/USD/TWD
+
+# 根據 ID 刪除
+DELETE /api/exchange-rates/1
 ```
 
 ## 資料模型
@@ -236,10 +304,12 @@ Content-Type: application/json
 ## 環境設定
 
 ### 資料庫設定
-- 使用 H2 記憶體資料庫
-- 資料庫名稱：exchangeratedb
-- 使用者名稱：sa
-- 密碼：（空）
+- **資料庫類型**：H2 記憶體資料庫
+- **資料庫名稱**：exchangeratedb
+- **連接 URL**：jdbc:h2:mem:exchangeratedb
+- **使用者名稱**：sa
+- **密碼**：（空）
+- **DDL 模式**：update（自動更新架構）
 
 ### H2 Console
 - 啟用狀態：是
@@ -249,8 +319,10 @@ Content-Type: application/json
 ## 快速開始
 
 ### 系統需求
-- JDK 17 或以上版本
-- Maven 3.6 或以上版本
+- **JDK 17** 或以上版本（建議使用 JDK 17 或 21 LTS）
+- **Maven 3.9** 或以上版本
+- **記憶體**：至少 512MB
+- **硬碟空間**：至少 100MB
 
 ### 安裝步驟
 
@@ -276,10 +348,13 @@ java -jar target/exchange-rate-1.0.0-SNAPSHOT.jar
 ```
 
 4. **存取服務**
-- API 服務：`http://localhost:8080/api/exchange-rates`
-- Swagger UI：`http://localhost:8080/swagger-ui/index.html`
-- OpenAPI 文檔：`http://localhost:8080/v3/api-docs`
-- H2 Console：`http://localhost:8080/h2-console`
+- **API 服務**：`http://localhost:8080/api/exchange-rates`
+- **Swagger UI**：`http://localhost:8080/swagger-ui/index.html` 或 `http://localhost:8080/swagger-ui.html`
+- **OpenAPI 文檔**：`http://localhost:8080/v3/api-docs`
+- **H2 Console**：`http://localhost:8080/h2-console`
+- **Actuator Health**：`http://localhost:8080/actuator/health`
+- **Actuator Info**：`http://localhost:8080/actuator/info`
+- **Actuator Metrics**：`http://localhost:8080/actuator/metrics`
 
 ## 初始資料
 
@@ -296,19 +371,60 @@ java -jar target/exchange-rate-1.0.0-SNAPSHOT.jar
 | EUR | GBP | 0.86 |
 | GBP | USD | 1.27 |
 
+這些資料由 `DataInitializer` 類在應用程式啟動時自動載入。
+
 ## 特色功能
 
 1. **自動大寫轉換**：貨幣代碼會自動轉換為大寫，確保資料一致性
 2. **時間戳記管理**：自動記錄資料建立和更新時間
-3. **精確計算**：使用 BigDecimal 確保匯率計算精確度
+3. **精確計算**：使用 BigDecimal 確保匯率計算精確度（6 位小數）
 4. **RESTful 設計**：符合 REST 架構風格的 API 設計
 5. **交易管理**：使用 Spring 的 @Transactional 確保資料一致性
+6. **例外處理**：全域例外處理器提供友善的錯誤訊息
+7. **資料驗證**：使用 Jakarta Validation 進行請求資料驗證
+8. **熱部署支援**：開發環境支援 Spring Boot DevTools 熱部署
+9. **BDD 測試**：完整的 Cucumber 測試覆蓋率
+10. **API 文檔**：自動生成的 Swagger UI 互動式文檔
 
+
+## 測試執行
+
+### 執行所有測試
+```bash
+mvn test
+```
+
+### 執行 Cucumber BDD 測試
+```bash
+mvn test -Dtest=CucumberTestRunner
+```
+
+### 執行整合測試
+```bash
+mvn verify
+```
+
+## 故障排除
+
+### 常見問題
+
+1. **Bean 名稱衝突**
+   - 執行 `mvn clean` 清理舊的編譯檔案
+   - 重新編譯專案 `mvn compile`
+
+2. **Port 8080 已被佔用**
+   - 修改 `application.properties` 中的 `server.port` 設定
+   - 或使用命令列參數：`java -jar target/exchange-rate-1.0.0-SNAPSHOT.jar --server.port=8081`
+
+3. **H2 Console 無法存取**
+   - 確認 `spring.h2.console.enabled=true`
+   - 檢查防火牆設定
 
 ## 授權資訊
 
-[請根據實際情況填寫授權資訊]
+本專案採用 MIT 授權條款
 
 ## 聯絡資訊
 
-[請填寫維護者聯絡資訊]
+專案維護者：[請填寫維護者資訊]
+Email：[請填寫 Email]

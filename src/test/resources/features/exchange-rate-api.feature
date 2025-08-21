@@ -38,11 +38,11 @@ Feature: 匯率換算API
 
     Examples:
       | from_currency | to_currency | rate  | error_message            |
-      | USD          | USD         | 1.0   | 來源與目標貨幣不可相同      |
-      | USD          | TWD         | 0     | 匯率必須大於0             |
-      | USD          | TWD         | -32.5 | 匯率必須大於0             |
-      | ABC          | TWD         | 32.5  | 不支援的貨幣代碼: ABC      |
-      | USD          | XYZ         | 32.5  | 不支援的貨幣代碼: XYZ      |
+      | USD          | USD         | 1.0   | Source and target currencies cannot be the same      |
+      | USD          | TWD         | 0     | Exchange rate must be greater than 0             |
+      | USD          | TWD         | -32.5 | Exchange rate must be greater than 0             |
+      | ABC          | TWD         | 32.5  | Unsupported currency code: ABC      |
+      | USD          | XYZ         | 32.5  | Unsupported currency code: XYZ      |
       |              | TWD         | 32.5  | 來源貨幣為必填欄位         |
       | USD          |             | 32.5  | 目標貨幣為必填欄位         |
       | USD          | TWD         |       | 匯率為必填欄位            |
@@ -137,7 +137,7 @@ Feature: 匯率換算API
       }
       """
     Then 回應狀態碼應該是 400
-    And 回應應該包含錯誤訊息 "匯率必須大於0"
+    And 回應應該包含錯誤訊息 "Exchange rate must be greater than 0"
 
     Examples:
       | rate  |
@@ -246,12 +246,12 @@ Feature: 匯率換算API
 
     Examples:
       | from | to  | amount | status_code | error_message           |
-      | USD  | USD | 100    | 400        | 來源與目標貨幣不可相同      |
-      | USD  | TWD | 0      | 400        | 金額必須大於0            |
-      | USD  | TWD | -100   | 400        | 金額必須大於0            |
-      | ABC  | TWD | 100    | 400        | 不支援的貨幣代碼: ABC     |
-      | USD  | XYZ | 100    | 400        | 不支援的貨幣代碼: XYZ     |
-      | ZZZ  | TWD | 100    | 400        | 不支援的貨幣代碼: ZZZ     |
+      | USD  | USD | 100    | 400        | Source and target currencies cannot be the same      |
+      | USD  | TWD | 0      | 400        | Amount must be greater than 0            |
+      | USD  | TWD | -100   | 400        | Amount must be greater than 0            |
+      | ABC  | TWD | 100    | 400        | Unsupported currency code: ABC     |
+      | USD  | XYZ | 100    | 400        | Unsupported currency code: XYZ     |
+      | ZZZ  | TWD | 100    | 400        | Unsupported currency code: ZZZ     |
 
   # ==================== 權限控制 ====================
 

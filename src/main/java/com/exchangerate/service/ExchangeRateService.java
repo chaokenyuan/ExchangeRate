@@ -35,7 +35,7 @@ public class ExchangeRateService {
 
     public List<ExchangeRate> getAllExchangeRates(String from, String to) {
         if (from != null && to != null) {
-            return exchangeRateRepository.findByFromCurrencyAndToCurrency(
+            return exchangeRateRepository.findAllByFromCurrencyAndToCurrency(
                 from.toUpperCase(), to.toUpperCase());
         } else if (from != null) {
             return exchangeRateRepository.findByFromCurrency(from.toUpperCase());
@@ -47,7 +47,7 @@ public class ExchangeRateService {
 
     public Page<ExchangeRate> getAllExchangeRates(String from, String to, Pageable pageable) {
         if (from != null && to != null) {
-            return exchangeRateRepository.findByFromCurrencyAndToCurrency(
+            return exchangeRateRepository.findAllByFromCurrencyAndToCurrency(
                 from.toUpperCase(), to.toUpperCase(), pageable);
         } else if (from != null) {
             return exchangeRateRepository.findByFromCurrency(from.toUpperCase(), pageable);
@@ -230,7 +230,7 @@ public class ExchangeRateService {
     }
 
     public void deleteExchangeRateByPair(String from, String to) {
-        List<ExchangeRate> rates = exchangeRateRepository.findByFromCurrencyAndToCurrency(
+        List<ExchangeRate> rates = exchangeRateRepository.findAllByFromCurrencyAndToCurrency(
             from.toUpperCase(), to.toUpperCase());
         if (rates.isEmpty()) {
             throw new ResourceNotFoundException(ErrorMessages.RATE_NOT_FOUND_ERROR);

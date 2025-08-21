@@ -44,7 +44,7 @@ class ExchangeRateServiceTest {
     private ExchangeRateRepository exchangeRateRepository;
 
     @InjectMocks
-    private TestExchangeRateService exchangeRateService;
+    private ExchangeRateService exchangeRateService;
 
     // === 測試數據欄位 (語意化命名) ===
     private ExchangeRate givenUsdToEur;
@@ -153,7 +153,7 @@ class ExchangeRateServiceTest {
         }
 
         private void givenFilterByFromAndToCurrencyData() {
-            when(exchangeRateRepository.findByFromCurrencyAndToCurrency("USD", "EUR"))
+            when(exchangeRateRepository.findAllByFromCurrencyAndToCurrency("USD", "EUR"))
                 .thenReturn(Collections.singletonList(givenUsdToEur));
         }
 
@@ -197,7 +197,7 @@ class ExchangeRateServiceTest {
         private void thenShouldReturnFilteredRatesByPair() {
             assertThat(whenResultRates).hasSize(1);
             assertThat(whenResultRates.get(0)).isEqualTo(givenUsdToEur);
-            verify(exchangeRateRepository).findByFromCurrencyAndToCurrency("USD", "EUR");
+            verify(exchangeRateRepository).findAllByFromCurrencyAndToCurrency("USD", "EUR");
         }
 
         private void thenShouldReturnFilteredRatesByFromCurrency() {
@@ -870,16 +870,16 @@ class ExchangeRateServiceTest {
 
         // === Given 輔助方法 ===
         private void givenValidRateIdForDeletion() {
-            // 無需特別準備，直接刪除
+            when(exchangeRateRepository.existsById(1L)).thenReturn(true);
         }
 
         private void givenValidCurrencyPairForDeletion() {
-            when(exchangeRateRepository.findByFromCurrencyAndToCurrency("USD", "EUR"))
+            when(exchangeRateRepository.findAllByFromCurrencyAndToCurrency("USD", "EUR"))
                 .thenReturn(Collections.singletonList(givenUsdToEur));
         }
 
         private void givenNonExistentCurrencyPairForDeletion() {
-            when(exchangeRateRepository.findByFromCurrencyAndToCurrency("USD", "CNY"))
+            when(exchangeRateRepository.findAllByFromCurrencyAndToCurrency("USD", "CNY"))
                 .thenReturn(Collections.emptyList());
         }
 
@@ -894,11 +894,12 @@ class ExchangeRateServiceTest {
 
         // === Then 輔助方法 ===
         private void thenShouldDeleteByIdSuccessfully() {
+            verify(exchangeRateRepository).existsById(1L);
             verify(exchangeRateRepository).deleteById(1L);
         }
 
         private void thenShouldDeleteByPairSuccessfully() {
-            verify(exchangeRateRepository).findByFromCurrencyAndToCurrency("USD", "EUR");
+            verify(exchangeRateRepository).findAllByFromCurrencyAndToCurrency("USD", "EUR");
             verify(exchangeRateRepository).deleteAll(any(List.class));
         }
 
