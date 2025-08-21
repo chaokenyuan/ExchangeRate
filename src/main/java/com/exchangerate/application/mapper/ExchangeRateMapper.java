@@ -5,14 +5,14 @@ import com.exchangerate.domain.model.entity.ExchangeRate;
 import org.springframework.stereotype.Component;
 
 /**
- * 匯率實體映射器
- * 負責Domain層和Application層之間的對象轉換
+ * Exchange rate entity mapper
+ * Responsible for object conversion between Domain and Application layers
  */
 @Component
 public class ExchangeRateMapper {
     
     /**
-     * 將Domain實體轉換為Response DTO
+     * Convert Domain entity to Response DTO
      */
     public ExchangeRateResponse toResponse(ExchangeRate exchangeRate) {
         if (exchangeRate == null) {
@@ -23,7 +23,7 @@ public class ExchangeRateMapper {
         try {
             id = Long.parseLong(exchangeRate.getId());
         } catch (NumberFormatException e) {
-            // ID可能是UUID格式，保持為null
+            // ID might be UUID format, keep as null
         }
         
         return ExchangeRateResponse.builder()

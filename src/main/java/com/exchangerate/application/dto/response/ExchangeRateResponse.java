@@ -7,32 +7,32 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 匯率查詢響應DTO
+ * Exchange rate query response DTO
  */
 @Schema(
     name = "ExchangeRateResponse",
-    description = "匯率資料響應模型"
+    description = "Exchange rate data response model"
 )
 public class ExchangeRateResponse {
     
-    @Schema(description = "匯率ID", example = "1")
+    @Schema(description = "Exchange rate ID", example = "1")
     private Long id;
     
-    @Schema(description = "來源貨幣代碼", example = "USD")
+    @Schema(description = "Source currency code", example = "USD")
     @JsonProperty("from_currency")
     private String fromCurrency;
     
-    @Schema(description = "目標貨幣代碼", example = "EUR")
+    @Schema(description = "Target currency code", example = "EUR")
     @JsonProperty("to_currency")
     private String toCurrency;
     
-    @Schema(description = "匯率值", example = "0.85")
+    @Schema(description = "Exchange rate value", example = "0.85")
     private BigDecimal rate;
     
-    @Schema(description = "時間戳", example = "2024-01-15T10:30:00")
+    @Schema(description = "Timestamp", example = "2024-01-15T10:30:00")
     private LocalDateTime timestamp;
     
-    @Schema(description = "資料來源", example = "Central Bank")
+    @Schema(description = "Data source", example = "Central Bank")
     private String source;
     
     public ExchangeRateResponse() {}
