@@ -39,7 +39,7 @@
 ### CQRS 模式實現
 
 **命令與查詢責任分離**：
-- **Command Side** (寫操作)：CreateExchangeRateCommand、UpdateExchangeRateCommand、ConvertCurrencyCommand
+- **Command Side** (寫操作)：ConvertCurrencyCommand
 - **Query Side** (讀操作)：GetExchangeRateQuery、ListExchangeRatesQuery、GetExchangeRateByIdQuery
 
 ## 🛠️ 技術棧
@@ -76,6 +76,8 @@
 - 📋 **技術棧配置**: 詳見 [tech-stacks.md](.ai-docs/tech-stacks.md)
 - 👨‍💻 **開發規範**: 詳見 [role-developer.md](.ai-docs/role-developer.md)  
 - 🧪 **測試規範**: 詳見 [role-qa-tester.md](.ai-docs/role-qa-tester.md)
+- 📝 **Cucumber測試標準**: 詳見 [cucumber-unit-testing-standards.md](src/test/resources/cucumber-unit-testing-standards.md)
+- 🔍 **QA測試標準**: 詳見 [qa-testing-standards.md](.ai-docs/standards/qa-testing-standards.md)
 
 ## 🏗️ 技術團隊角色系統
 
@@ -117,38 +119,46 @@ ExchangeRate/
     │   ├── application/                     # 🔴 Application Layer (用例)
     │   │   ├── dto/
     │   │   │   ├── command/                 # CQRS - Command DTOs
-    │   │   │   │   ├── CreateExchangeRateCommand.java
-    │   │   │   │   ├── UpdateExchangeRateCommand.java
     │   │   │   │   └── ConvertCurrencyCommand.java
     │   │   │   ├── query/                   # CQRS - Query DTOs
     │   │   │   │   ├── GetExchangeRateQuery.java
     │   │   │   │   ├── ListExchangeRatesQuery.java
     │   │   │   │   └── GetExchangeRateByIdQuery.java
     │   │   │   └── response/                # 響應DTOs
-    │   │   │       └── ExchangeRateResponse.java
+    │   │   │       ├── ExchangeRateResponse.java
+    │   │   │       └── ConversionResponse.java
     │   │   ├── port/in/                     # 入站端口 (Use Cases)
     │   │   │   ├── CreateExchangeRateUseCase.java
     │   │   │   ├── ConvertCurrencyUseCase.java
     │   │   │   └── QueryExchangeRateUseCase.java
     │   │   ├── service/                     # Application Services
-    │   │   │   ├── ExchangeRateApplicationService.java # Command處理
+    │   │   │   ├── ExchangeRateApplicationService.java # CRUD處理
     │   │   │   ├── ConversionApplicationService.java   # 轉換邏輯
     │   │   │   └── ExchangeRateQueryService.java       # Query處理
     │   │   └── mapper/                      # 對象映射器
-    │   │       └── ExchangeRateMapper.java
+    │   │       ├── ExchangeRateMapper.java
+    │   │       └── ConversionMapper.java
     │   │
     │   └── infrastructure/                  # 🔶 Infrastructure Layer (適配器)
     │       ├── adapter/
     │       │   ├── in/web/                  # Web入站適配器
-    │       │   │   ├── ConversionController.java
-    │       │   │   └── mapper/ConversionMapper.java
+    │       │   │   └── ConversionController.java
     │       │   └── out/persistence/         # 持久化出站適配器
     │       │       ├── JpaExchangeRateRepositoryAdapter.java
     │       │       ├── ExchangeRatePersistenceMapper.java
     │       │       ├── entity/ExchangeRateJpaEntity.java
     │       │       └── repository/ExchangeRateJpaRepository.java
-    │       └── config/                      # 基礎設施配置
-    │           └── JpaConfig.java
+    │       ├── config/                      # 基礎設施配置
+    │       │   ├── DataInitializer.java
+    │       │   └── OpenApiConfig.java
+    │       ├── constants/                   # 常數定義
+    │       │   ├── CurrencyConstants.java
+    │       │   ├── ErrorMessages.java
+    │       │   └── EnglishErrorMessages.java
+    │       └── exception/                   # 例外處理
+    │           ├── GlobalExceptionHandler.java
+    │           ├── ResourceNotFoundException.java
+    │           └── DuplicateResourceException.java
     │
     ├── main/resources/
     │   └── application.properties            # Spring Boot配置
@@ -156,19 +166,29 @@ ExchangeRate/
     └── test/                                 # 🧪 測試層 (122個測試)
         ├── java/com/exchangerate/
         │   ├── CucumberTestRunner.java       # Cucumber執行器
-        │   ├── config/CucumberSpringConfiguration.java
         │   ├── stepdefinitions/              # Cucumber步驟定義
-        │   │   └── HexagonalStepDefinitions.java
+        │   │   ├── BaseStepDefinitions.java
+        │   │   ├── ConversionStepDefinitions.java
+        │   │   ├── ExchangeRateStepDefinitions.java
+        │   │   ├── PerformanceStepDefinitions.java
+        │   │   ├── SecurityStepDefinitions.java
+        │   │   ├── SystemStepDefinitions.java
+        │   │   ├── ValidationStepDefinitions.java
+        │   │   └── TestHooks.java
         │   ├── domain/model/                 # Domain單元測試
         │   ├── application/service/          # Application服務測試
-        │   └── infrastructure/adapter/       # Infrastructure測試
+        │   ├── infrastructure/adapter/       # Infrastructure測試
+        │   └── infrastructure/config/        # 測試配置
         └── resources/
             ├── application-test.properties   # 測試配置
-            └── features/                     # 🥒 Gherkin BDD規格 (61場景)
+            └── features/                     # 🥒 Gherkin BDD規格 (7個功能檔案)
                 ├── currency-conversion.feature
-                ├── exchange-rate-api.feature
                 ├── data-validation.feature
-                └── [其他.feature文件]
+                ├── exchange-rate-api.feature
+                ├── exchange-rate-management.feature
+                ├── performance-limitations.feature
+                ├── security-authorization.feature
+                └── system-integration.feature
 ```
 
 ## 🎯 核心功能
@@ -196,9 +216,9 @@ ExchangeRate/
 ## 📊 測試覆蓋度
 
 ### ✅ 測試統計
-- **Java單元測試**: 61個測試 - 全部通過 ✅
-- **Cucumber BDD測試**: 61個場景 - 全部通過 ✅
-- **總測試數量**: 122個測試 - 0失敗 0錯誤 🎯
+- **Java單元測試**: 涵蓋Domain、Application、Infrastructure層
+- **Cucumber BDD測試**: 7個功能檔案，涵蓋完整業務場景
+- **測試組織**: 分層測試架構，確保各層職責清晰 🎯
 
 ### 測試層級
 - **單元測試**: Domain層純業務邏輯測試
@@ -227,23 +247,26 @@ mvn clean install
 
 3. **啟動應用程式**
 ```bash
-# 使用六角形架構Profile
-SPRING_PROFILES_ACTIVE=hex mvn spring-boot:run
+# 啟動應用程式
+mvn spring-boot:run
 
 # 或使用JAR檔案
-java -jar -Dspring.profiles.active=hex target/exchange-rate-1.0.0-SNAPSHOT.jar
+java -jar target/exchange-rate-1.0.0-SNAPSHOT.jar
 ```
 
 4. **運行測試**
 ```bash
 # 運行所有測試
-mvn test -Dspring.profiles.active=hex
+mvn test
 
 # 只運行單元測試
-mvn test -Dtest="**Test" -Dspring.profiles.active=hex
+mvn test -Dtest="**Test"
 
 # 只運行Cucumber測試
-mvn test -Dtest="**/CucumberTestRunner" -Dspring.profiles.active=hex
+mvn test -Dtest="**/CucumberTestRunner"
+
+# 生成測試報告
+mvn test jacoco:report
 ```
 
 ## 📖 API 文檔
@@ -312,26 +335,30 @@ GET /api/exchange-rates?from=USD&page=1&limit=10
 
 ## 🔧 配置管理
 
-### Profile 配置
+### 應用程式配置
 ```properties
-# application.properties
-spring.profiles.active=hex
-
-# 六角形架構專用配置
+# application.properties - 主要配置
 spring.jpa.hibernate.ddl-auto=create-drop
-spring.datasource.url=jdbc:h2:mem:hexdb
+spring.datasource.url=jdbc:h2:mem:exchangeratedb
+spring.datasource.username=sa
+spring.datasource.password=
 logging.level.com.exchangerate=DEBUG
+
+# H2 Console 配置
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+
+# OpenAPI 文檔配置
+springdoc.api-docs.path=/v3/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
 ```
 
-### 環境變數
-```bash
-# 啟動時指定Profile
-export SPRING_PROFILES_ACTIVE=hex
-
-# 資料庫配置
-export DB_URL=jdbc:h2:mem:exchangeratedb
-export DB_USERNAME=sa
-export DB_PASSWORD=
+### 測試配置
+```properties
+# application-test.properties - 測試專用配置
+spring.datasource.url=jdbc:h2:mem:testdb
+logging.level.org.springframework.test=DEBUG
+spring.jpa.show-sql=false
 ```
 
 ## 📊 性能指標
@@ -339,7 +366,7 @@ export DB_PASSWORD=
 - **啟動時間**: < 10秒
 - **API回應時間**: < 100ms (平均)
 - **記憶體使用**: ~200MB (運行時)
-- **測試執行時間**: ~30秒 (122個測試)
+- **測試執行時間**: ~30秒 (完整測試套件)
 
 ## 🔒 安全特性
 
@@ -355,7 +382,7 @@ export DB_PASSWORD=
 FROM openjdk:17-jre-slim
 COPY target/exchange-rate-*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-Dspring.profiles.active=hex", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
 
 ### 生產環境配置
@@ -368,12 +395,13 @@ ENTRYPOINT ["java", "-Dspring.profiles.active=hex", "-jar", "/app.jar"]
 
 1. Fork本專案
 2. 建立功能分支 (`git checkout -b feature/new-feature`)
-3. 遵循六角形架構原則
+3. 遵循六角形架構原則和技術團隊角色規範
 4. 撰寫對應的單元測試和BDD場景
-5. 確保所有測試通過 (`mvn test -Dspring.profiles.active=hex`)
-6. 提交更改 (`git commit -m 'Add new feature'`)
-7. 推送到分支 (`git push origin feature/new-feature`)
-8. 建立Pull Request
+5. 確保所有測試通過 (`mvn test`)
+6. 遵循測試標準規範 (Given-When-Then模式)
+7. 提交更改 (`git commit -m 'Add new feature'`)
+8. 推送到分支 (`git push origin feature/new-feature`)
+9. 建立Pull Request
 
 ## 📜 版本歷史
 
