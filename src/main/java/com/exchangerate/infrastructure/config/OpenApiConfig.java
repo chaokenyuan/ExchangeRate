@@ -21,7 +21,7 @@ public class OpenApiConfig {
     public OpenAPI exchangeRateOpenAPI() {
         Server localServer = new Server()
                 .url("http://localhost:" + serverPort)
-                .description("本地開發環境");
+                .description("Local development environment");
 
         Contact contact = new Contact()
                 .name("Exchange Rate API Team")
@@ -33,11 +33,11 @@ public class OpenApiConfig {
                 .url("https://opensource.org/licenses/MIT");
 
         Info info = new Info()
-                .title("匯率轉換 API")
+                .title("Exchange Rate API")
                 .version("1.0.0")
                 .contact(contact)
-                .description("提供即時匯率查詢與貨幣轉換服務的RESTful API。" +
-                           "支援多種貨幣對的匯率查詢、即時轉換計算，以及匯率歷史資料管理。")
+                .description("RESTful API providing real-time exchange rate queries and currency conversion services. " +
+                           "Supports exchange rate queries for multiple currency pairs, real-time conversion calculations, and exchange rate historical data management.")
                 .termsOfService("https://exchangerate.com/terms")
                 .license(license);
 

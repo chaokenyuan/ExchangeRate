@@ -1,8 +1,8 @@
 package com.exchangerate.infrastructure.constants;
 
 /**
- * 錯誤訊息常數定義
- * 集中管理錯誤訊息，支援國際化
+ * Error message constants definition
+ * Centralized error message management with internationalization support
  */
 public final class ErrorMessages {
     
@@ -10,25 +10,25 @@ public final class ErrorMessages {
         // Utility class - prevent instantiation
     }
     
-    // 驗證相關錯誤訊息
-    public static final String SAME_CURRENCY_ERROR = "來源與目標貨幣不可相同";
-    public static final String INVALID_RATE_ERROR = "匯率必須大於0";
-    public static final String UNSUPPORTED_CURRENCY_ERROR = "不支援的貨幣代碼: %s";
-    public static final String INVALID_AMOUNT_ERROR = "金額必須大於0";
-    public static final String NULL_CURRENCY_ERROR = "貨幣代碼不能為空";
-    public static final String INVALID_CURRENCY_LENGTH_ERROR = "貨幣代碼必須為3個字元";
+    // Validation related error messages
+    public static final String SAME_CURRENCY_ERROR = "Source and target currencies cannot be the same";
+    public static final String INVALID_RATE_ERROR = "Exchange rate must be greater than 0";
+    public static final String UNSUPPORTED_CURRENCY_ERROR = "Unsupported currency code: %s";
+    public static final String INVALID_AMOUNT_ERROR = "Amount must be greater than 0";
+    public static final String NULL_CURRENCY_ERROR = "Currency code cannot be null";
+    public static final String INVALID_CURRENCY_LENGTH_ERROR = "Currency code must be exactly 3 characters";
     
-    // 業務邏輯錯誤訊息
-    public static final String RATE_NOT_FOUND_ERROR = "找不到可用的匯率";
-    public static final String DUPLICATE_RATE_ERROR = "此貨幣對的匯率已存在";
+    // Business logic error messages
+    public static final String RATE_NOT_FOUND_ERROR = "No available exchange rate found";
+    public static final String DUPLICATE_RATE_ERROR = "Exchange rate for this currency pair already exists";
     
-    // 權限相關錯誤訊息
-    public static final String SESSION_EXPIRED_ERROR = "會話已過期，請重新登入";
-    public static final String INVALID_TOKEN_ERROR = "認證令牌無效或已過期";
-    public static final String LOGIN_REQUIRED_ERROR = "需要登入";
-    public static final String INSUFFICIENT_PERMISSIONS_ERROR = "權限不足";
+    // Permission related error messages
+    public static final String SESSION_EXPIRED_ERROR = "Session has expired, please log in again";
+    public static final String INVALID_TOKEN_ERROR = "Authentication token is invalid or expired";
+    public static final String LOGIN_REQUIRED_ERROR = "Login required";
+    public static final String INSUFFICIENT_PERMISSIONS_ERROR = "Insufficient permissions";
     
-    // HTTP相關錯誤訊息
-    public static final String ENDPOINT_NOT_FOUND_ERROR = "端點不存在";
-    public static final String INTERNAL_SERVER_ERROR = "內部伺服器錯誤";
+    // HTTP related error messages
+    public static final String ENDPOINT_NOT_FOUND_ERROR = "Endpoint not found";
+    public static final String INTERNAL_SERVER_ERROR = "Internal server error";
 }

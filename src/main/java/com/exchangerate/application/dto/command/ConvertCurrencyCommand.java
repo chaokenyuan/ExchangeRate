@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @Schema(
     name = "ConvertCurrencyCommand",
-    description = "貨幣轉換命令",
+    description = "Currency conversion command",
     example = """
         {
             "from_currency": "USD",
@@ -20,40 +20,40 @@ import java.math.BigDecimal;
 public class ConvertCurrencyCommand {
     
     @Schema(
-        description = "來源貨幣代碼（ISO 4217格式）",
+        description = "Source currency code (ISO 4217 format)",
         example = "USD",
         required = true,
         minLength = 3,
         maxLength = 3,
         pattern = "^[A-Z]{3}$"
     )
-    @NotBlank(message = "來源貨幣為必填欄位")
-    @Size(min = 3, max = 3, message = "貨幣代碼必須為3個字元")
+    @NotBlank(message = "Source currency is required")
+    @Size(min = 3, max = 3, message = "Currency code must be exactly 3 characters")
     @JsonProperty("from_currency")
     private String fromCurrency;
     
     @Schema(
-        description = "目標貨幣代碼（ISO 4217格式）",
+        description = "Target currency code (ISO 4217 format)",
         example = "EUR",
         required = true,
         minLength = 3,
         maxLength = 3,
         pattern = "^[A-Z]{3}$"
     )
-    @NotBlank(message = "目標貨幣為必填欄位")
-    @Size(min = 3, max = 3, message = "貨幣代碼必須為3個字元")
+    @NotBlank(message = "Target currency is required")
+    @Size(min = 3, max = 3, message = "Currency code must be exactly 3 characters")
     @JsonProperty("to_currency")
     private String toCurrency;
     
     @Schema(
-        description = "要轉換的金額，必須大於0",
+        description = "Amount to convert, must be greater than 0",
         example = "100.00",
         required = true,
         minimum = "0",
         exclusiveMinimum = true
     )
-    @NotNull(message = "金額為必填欄位")
-    @DecimalMin(value = "0.0", inclusive = false, message = "金額必須大於0")
+    @NotNull(message = "Amount is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Amount must be greater than 0")
     private BigDecimal amount;
 
     public ConvertCurrencyCommand() {}

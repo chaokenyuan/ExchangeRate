@@ -24,7 +24,7 @@ import java.util.HashMap;
 @Profile("hex")
 @RestController
 @RequestMapping("/api")
-@Tag(name = "貨幣轉換", description = "貨幣轉換相關API")
+@Tag(name = "Currency Conversion", description = "Currency conversion related APIs")
 public class ConversionController {
 
     private final ConvertCurrencyUseCase convertCurrencyUseCase;
@@ -37,26 +37,26 @@ public class ConversionController {
     }
 
     @Operation(
-        summary = "貨幣轉換",
+        summary = "Currency Conversion",
         description = """
-            將指定金額從一種貨幣轉換為另一種貨幣。
+            Convert specified amount from one currency to another.
             
-            系統支援以下轉換策略：
-            1. 直接轉換：使用直接的匯率進行轉換
-            2. 反向轉換：使用反向匯率進行轉換
-            3. 鏈式轉換：通過中介貨幣（如USD）進行轉換
+            The system supports the following conversion strategies:
+            1. Direct conversion: Use direct exchange rate for conversion
+            2. Reverse conversion: Use reverse exchange rate for conversion
+            3. Chain conversion: Convert through intermediate currency (like USD)
             
-            轉換結果會顯示實際使用的轉換路徑。
+            The conversion result will show the actual conversion path used.
             """,
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "貨幣轉換請求",
+            description = "Currency conversion request",
             required = true,
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = ConvertCurrencyCommand.class),
                 examples = {
                     @ExampleObject(
-                        name = "USD轉EUR",
+                        name = "USD to EUR",
                         value = """
                             {
                                 "from_currency": "USD",
@@ -66,7 +66,7 @@ public class ConversionController {
                             """
                     ),
                     @ExampleObject(
-                        name = "大額轉換",
+                        name = "Large amount conversion",
                         value = """
                             {
                                 "from_currency": "USD",
@@ -82,7 +82,7 @@ public class ConversionController {
     @ApiResponses({
         @ApiResponse(
             responseCode = "200", 
-            description = "轉換成功",
+            description = "Conversion successful",
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = ConversionResponse.class)
@@ -90,24 +90,24 @@ public class ConversionController {
         ),
         @ApiResponse(
             responseCode = "400", 
-            description = "請求參數錯誤",
+            description = "Request parameter error",
             content = @Content(
                 mediaType = "application/json",
                 examples = {
                     @ExampleObject(
-                        name = "金額錯誤",
+                        name = "Amount error",
                         value = """
                             {
-                                "error": "金額必須大於0",
+                                "error": "Amount must be greater than 0",
                                 "timestamp": "2024-01-15T10:30:00"
                             }
                             """
                     ),
                     @ExampleObject(
-                        name = "貨幣代碼錯誤",
+                        name = "Currency code error",
                         value = """
                             {
-                                "error": "不支援的貨幣代碼: XXX",
+                                "error": "Unsupported currency code: XXX",
                                 "timestamp": "2024-01-15T10:30:00"
                             }
                             """
@@ -117,13 +117,13 @@ public class ConversionController {
         ),
         @ApiResponse(
             responseCode = "404", 
-            description = "找不到匯率",
+            description = "Exchange rate not found",
             content = @Content(
                 mediaType = "application/json",
                 examples = @ExampleObject(
                     value = """
                         {
-                            "error": "找不到可用的匯率",
+                            "error": "No available exchange rate found",
                             "timestamp": "2024-01-15T10:30:00"
                         }
                         """
@@ -137,7 +137,7 @@ public class ConversionController {
             // Validate same currency
             if (command.getFromCurrency().equalsIgnoreCase(command.getToCurrency())) {
                 Map<String, Object> error = new HashMap<>();
-                error.put("error", "來源與目標貨幣不可相同");
+                error.put("error", "Source and target currencies cannot be the same");
                 error.put("timestamp", java.time.LocalDateTime.now());
                 return ResponseEntity.badRequest().body(error);
             }

@@ -4,16 +4,20 @@ import com.exchangerate.domain.model.entity.ExchangeRate;
 import com.exchangerate.domain.model.valueobject.*;
 import com.exchangerate.domain.port.in.ConvertCurrencyUseCase;
 import com.exchangerate.domain.port.out.ExchangeRateRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Service
 @Transactional(readOnly = true)
 public class ConversionApplicationService implements ConvertCurrencyUseCase {
     
+    private static final Logger logger = LoggerFactory.getLogger(ConversionApplicationService.class);
     private final ExchangeRateRepository exchangeRateRepository;
     
     public ConversionApplicationService(ExchangeRateRepository exchangeRateRepository) {
@@ -22,7 +26,10 @@ public class ConversionApplicationService implements ConvertCurrencyUseCase {
     
     @Override
     public ConversionResult convertCurrency(CurrencyCode fromCurrency, CurrencyCode toCurrency, BigDecimal amount) {
+        logger.info("Converting {} {} to {}", amount, fromCurrency.getValue(), toCurrency.getValue());
+        
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            logger.warn("Invalid amount for conversion: {}", amount);
             throw new IllegalArgumentException("Amount must be greater than zero");
         }
         
@@ -34,6 +41,7 @@ public class ConversionApplicationService implements ConvertCurrencyUseCase {
                 .orElse(null);
                 
         if (directRate != null) {
+            logger.debug("Using direct conversion rate for {}", currencyPair);
             return performDirectConversion(currencyPair, amount, directRate.getRate());
         }
         
@@ -44,18 +52,22 @@ public class ConversionApplicationService implements ConvertCurrencyUseCase {
                 .orElse(null);
                 
         if (reverseRate != null) {
+            logger.debug("Using reverse conversion rate for {}", currencyPair);
             Rate invertedRate = reverseRate.getRate().inverse();
             return performDirectConversion(currencyPair, amount, invertedRate);
         }
         
         // If no direct or reverse rate found, try chain conversion through USD
         if (!fromCurrency.getValue().equals("USD") && !toCurrency.getValue().equals("USD")) {
+            logger.debug("Attempting chain conversion through USD for {}", currencyPair);
             ConversionResult chainResult = performChainConversion(fromCurrency, toCurrency, amount);
             if (chainResult != null) {
+                logger.info("Successfully performed chain conversion for {}", currencyPair);
                 return chainResult;
             }
         }
         
+        logger.error("No exchange rate available for {}", currencyPair);
         throw new IllegalArgumentException("No exchange rate available for " + currencyPair);
     }
     
@@ -128,7 +140,7 @@ public class ConversionApplicationService implements ConvertCurrencyUseCase {
         BigDecimal finalAmount = usdAmount.multiply(usdToTargetRate.getRate().getValue());
         
         // Calculate effective rate
-        Rate effectiveRate = Rate.fromDouble(finalAmount.divide(amount, 6, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Rate effectiveRate = Rate.fromDouble(finalAmount.divide(amount, 6, RoundingMode.HALF_UP).doubleValue());
         
         String conversionPath = fromCurrency.getValue() + "→USD→" + toCurrency.getValue();
         
