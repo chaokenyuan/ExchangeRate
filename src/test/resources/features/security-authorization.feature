@@ -38,6 +38,7 @@ Feature: 安全認證與權限控制
   Scenario Outline: 管理者操作權限檢查
     Given 我沒有管理者權限
     But 我有登入系統
+    And 資料庫已存在 "USD" 到 "TWD" 的匯率為 32.5
     When 我發送<method>請求到 "<endpoint>"
     Then 回應狀態碼應該是 403
     And 回應應該包含錯誤訊息 "權限不足"

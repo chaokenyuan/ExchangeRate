@@ -118,6 +118,7 @@ Feature: 匯率換算API
   @update @validation
   Scenario: 更新不存在的匯率應該失敗
     Given 資料庫沒有 "GBP" 到 "TWD" 的匯率資料
+    And 我有管理者權限
     When 我發送PUT請求到 "/api/exchange-rates/GBP/TWD" 包含:
       """json
       {
@@ -130,6 +131,7 @@ Feature: 匯率換算API
   @update @validation
   Scenario Outline: 更新為無效匯率值應該失敗
     Given 資料庫已存在 "USD" 到 "TWD" 的匯率為 32.5
+    And 我有管理者權限
     When 我發送PUT請求到 "/api/exchange-rates/USD/TWD" 包含:
       """json
       {
@@ -157,6 +159,7 @@ Feature: 匯率換算API
   @delete @edge-case
   Scenario: 刪除不存在的匯率資料
     Given 資料庫沒有 "GBP" 到 "TWD" 的匯率資料
+    And 我有管理者權限
     When 我發送DELETE請求到 "/api/exchange-rates/GBP/TWD"
     Then 回應狀態碼應該是 404
     And 回應應該包含錯誤訊息 "找不到指定的匯率資料"

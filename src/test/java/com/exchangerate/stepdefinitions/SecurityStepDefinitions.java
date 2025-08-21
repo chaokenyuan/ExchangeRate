@@ -105,7 +105,10 @@ public class SecurityStepDefinitions extends BaseStepDefinitions {
         String expectedErrorMessage = (String) testContext.get("expectedErrorMessage");
         
         // 根據操作類型和權限設定回應狀態
-        if (operation.contains("修改") || operation.contains("刪除") || operation.contains("新增")) {
+        boolean requiresAdminPermission = operation.contains("修改") || operation.contains("刪除") || operation.contains("新增") ||
+                                         operation.contains("create") || operation.contains("update") || operation.contains("delete");
+        
+        if (requiresAdminPermission) {
             // 需要管理者權限的操作
             if (!isLoggedIn) {
                 lastResponseStatus = "401";
@@ -122,7 +125,7 @@ public class SecurityStepDefinitions extends BaseStepDefinitions {
                 lastResponseBody = "{\"status\":\"操作成功\"}";
             }
         } else {
-            // 一般查詢操作
+            // 一般查詢操作 (read, convert等)
             if (!isLoggedIn && expectedErrorMessage != null) {
                 lastResponseStatus = "401";
                 lastResponseBody = "{\"error\":\"" + expectedErrorMessage + "\"}";

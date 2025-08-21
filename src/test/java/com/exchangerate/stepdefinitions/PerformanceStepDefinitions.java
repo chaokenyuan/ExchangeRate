@@ -439,9 +439,9 @@ public class PerformanceStepDefinitions extends BaseStepDefinitions {
     
     @Then("第二次請求的回應時間應該明顯快於第一次")
     public void secondRequestResponseTimeShouldBeSignificantlyFasterThanFirst() {
-        // Assert: 時間驗證
-        Long firstStart = (Long) testContext.get("firstRequestStartTime");
-        Long firstEnd = (Long) testContext.get("firstRequestEndTime");
+        // Assert: 時間驗證 - 使用正確的變數名稱
+        Long firstStart = (Long) testContext.get("firstSpecificRequestStartTime");
+        Long firstEnd = (Long) testContext.get("firstSpecificRequestEndTime");
         Long secondStart = (Long) testContext.get("secondRequestStartTime");
         Long secondEnd = (Long) testContext.get("secondRequestEndTime");
         
@@ -536,7 +536,12 @@ public class PerformanceStepDefinitions extends BaseStepDefinitions {
         
         testContext.put("totalConcurrentRequests", concurrentRequests);
         lastResponseStatus = "200";
-        lastResponseBody = "{\"queued_requests\":" + (concurrentRequests - poolSize) + "}";
+        lastResponseBody = "{" +
+            "\"queued_requests\":" + (concurrentRequests - poolSize) + "," +
+            "\"processed\":true," +
+            "\"total_requests\":" + concurrentRequests + "," +
+            "\"pool_size\":" + poolSize +
+            "}";
     }
     
     @Then("請求應該正確排隊等待")
