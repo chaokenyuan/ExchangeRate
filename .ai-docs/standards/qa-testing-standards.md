@@ -88,31 +88,88 @@ private void thenShouldReturnSuccessfulConversion(ConversionResponse actual) {
 }
 ```
 
-#### ❌ 避免的測試結構
+#### ✅ 另一個正確的語意化測試範例
 
 ```java
 @Test
-void testConversion() {
-    // ❌ 混雜的代碼結構，沒有語意化方法包裝
-    ConversionRequest request = new ConversionRequest();
-    request.setFrom_currency("USD");
-    when(service.convert(any())).thenReturn(response);
-    ConversionResponse result = controller.convert(request);
-    assertEquals("EUR", result.getTo_currency());
+@DisplayName("GIVEN: 無效的貨幣代碼 WHEN: 執行轉換 THEN: 應該拋出驗證異常")
+void shouldThrowValidationExceptionForInvalidCurrency() {
+    // Given - 準備無效的請求數據
+    givenInvalidCurrencyRequest();
+
+    // When - 執行轉換並期望異常
+    Exception result = whenExecutingConversionWithExpectedException();
+
+    // Then - 驗證異常類型和訊息
+    thenShouldThrowValidationException(result);
 }
 
-@Test  
-void shouldConvertSuccessfully() {
-    // ❌ 雖有註解但沒有方法包裝
-    // Given
-    ConversionRequest request = new ConversionRequest();
-    request.setFrom_currency("USD");
+// Given 輔助方法
+private void givenInvalidCurrencyRequest() {
+    invalidRequest = new ConversionRequest();
+    invalidRequest.setFrom_currency("INVALID");
+    invalidRequest.setTo_currency("EUR");
+    invalidRequest.setAmount(new BigDecimal("100"));
+}
+
+// When 輔助方法
+private Exception whenExecutingConversionWithExpectedException() {
+    return assertThrows(ValidationException.class, () -> {
+        conversionController.convertCurrency(invalidRequest);
+    });
+}
+
+// Then 輔助方法
+private void thenShouldThrowValidationException(Exception actual) {
+    assertThat(actual).isInstanceOf(ValidationException.class);
+    assertThat(actual.getMessage()).contains("無效的貨幣代碼");
+}
+```
+
+#### ✅ 複雜業務邏輯的語意化測試範例
+
+```java
+@Test
+@DisplayName("GIVEN: 匯率服務暫時不可用 WHEN: 執行匯率查詢 THEN: 應該使用快取回應")
+void shouldUseCachedRateWhenServiceUnavailable() {
+    // Given - 準備快取數據和模擬服務異常
+    givenCachedExchangeRateAndUnavailableService();
+
+    // When - 執行匯率查詢
+    ExchangeRateResponse result = whenQueryingExchangeRate();
+
+    // Then - 驗證使用了快取數據
+    thenShouldReturnCachedExchangeRate(result);
+}
+
+// Given 輔助方法
+private void givenCachedExchangeRateAndUnavailableService() {
+    // 準備快取數據
+    cachedRate = ExchangeRate.builder()
+        .fromCurrency("USD")
+        .toCurrency("EUR") 
+        .rate(new BigDecimal("0.85"))
+        .timestamp(LocalDateTime.now().minusMinutes(5))
+        .build();
+    cacheService.put("USD_EUR", cachedRate);
     
-    // When  
-    ConversionResponse result = service.convert(request);
-    
-    // Then
-    assertNotNull(result); // 直接驗證，未封裝
+    // 模擬外部服務不可用
+    when(externalRateService.getLatestRate("USD", "EUR"))
+        .thenThrow(new ServiceUnavailableException("外部服務暫時不可用"));
+}
+
+// When 輔助方法  
+private ExchangeRateResponse whenQueryingExchangeRate() {
+    return exchangeRateService.getExchangeRate("USD", "EUR");
+}
+
+// Then 輔助方法
+private void thenShouldReturnCachedExchangeRate(ExchangeRateResponse actual) {
+    assertThat(actual.getFromCurrency()).isEqualTo("USD");
+    assertThat(actual.getToCurrency()).isEqualTo("EUR");
+    assertThat(actual.getRate()).isEqualByComparingTo(new BigDecimal("0.85"));
+    assertThat(actual.isFromCache()).isTrue();
+    assertThat(actual.getCacheTimestamp()).isEqualTo(cachedRate.getTimestamp());
 }
 ```
 

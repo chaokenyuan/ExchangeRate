@@ -133,20 +133,20 @@ Feature: [功能名稱]
 - ✅ **輕量單元測試**: 使用 `@ExtendWith(MockitoExtension.class)`
 - ✅ **中文說明**: `@DisplayName` 使用中文描述, GIVEN: 前置條件, WHEN: 執行動作, THEN: 預期結果
 - ✅ **邏輯分組**: 使用 `@Nested` 組織測試類別
-
+- ✅ **禁用判斷**: 不使用 if/else 或 switch-case 等複雜判斷
 ### 快速參考
 ```java
 @Test
 @DisplayName("GIVEN: 有效/無效 資料 WHEN: 動作 THEN: 期望結果")
 void shouldPassValidationForValidData() {
     // Given - 準備測試數據
-    ConversionRequest givenValidRequest = createValidRequest();
+    ConversionRequest request = givenCreateValidRequest();
     
     // When - 執行操作  
-    Result whenValidating = validator.validate(givenValidRequest);
+    Result result = whenValidating(request);
     
     // Then - 驗證結果
-    thenShouldHaveNoViolations(whenValidating);
+    thenShouldHaveNoViolations(result);
 }
 ```
 
