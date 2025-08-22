@@ -87,7 +87,7 @@ public class ConversionController {
         )
     })
     @PostMapping("/convert")
-    public ResponseEntity<?> convertCurrency(
+    public ResponseEntity<ConversionResponse> convertCurrency(
         @Parameter(
             description = "貨幣轉換請求資料，包含來源貨幣、目標貨幣和轉換金額",
             required = true,
@@ -95,13 +95,7 @@ public class ConversionController {
         )
         @Valid @RequestBody ConversionRequest request
     ) {
-        try {
-            ConversionResponse response = exchangeRateService.convertCurrencyDetailed(request);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
+        ConversionResponse response = exchangeRateService.convertCurrencyDetailed(request);
+        return ResponseEntity.ok(response);
     }
 }

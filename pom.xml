@@ -171,6 +171,7 @@
                 <version>3.1.2</version>
                 <configuration>
                     <includes>
+                        <include>**/*Test.java</include>
                         <include>**/*Tests.java</include>
                         <include>**/*CucumberTest.java</include>
                         <include>**/*CucumberTestRunner.java</include>
